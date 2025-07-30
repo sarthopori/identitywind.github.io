@@ -1,19 +1,20 @@
 document.addEventListener('DOMContentLoaded', () => {
     const slides = document.querySelectorAll('.slider .slide');
-    if (slides.length === 0) return; // Don't run if there's no slider
-
     const prevBtn = document.querySelector('.slider-prev');
     const nextBtn = document.querySelector('.slider-next');
+
+    if (slides.length === 0) return;
+
     let currentSlide = 0;
     const slideInterval = 5000; // 5 seconds
 
     function showSlide(index) {
-        // Hide all slides
+        // Remove 'active-slide' class from all slides
         slides.forEach(slide => {
-            slide.style.display = 'none';
+            slide.classList.remove('active-slide');
         });
-        // Show the correct slide
-        slides[index].style.display = 'block';
+        // Add 'active-slide' class to the correct one
+        slides[index].classList.add('active-slide');
     }
 
     function nextSlide() {
@@ -27,12 +28,27 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Event listeners for buttons
-    if (nextBtn) nextBtn.addEventListener('click', nextSlide);
-    if (prevBtn) prevBtn.addEventListener('click', prevSlide);
+    if (nextBtn) {
+        nextBtn.addEventListener('click', () => {
+            nextSlide();
+            // Reset the interval when a button is clicked
+            clearInterval(autoSlide);
+            autoSlide = setInterval(nextSlide, slideInterval);
+        });
+    }
 
+    if (prevBtn) {
+        prevBtn.addEventListener('click', () => {
+            prevSlide();
+            // Reset the interval when a button is clicked
+            clearInterval(autoSlide);
+            autoSlide = setInterval(nextSlide, slideInterval);
+        });
+    }
+    
     // Initial display
     showSlide(currentSlide);
 
     // Auto-slide functionality
-    setInterval(nextSlide, slideInterval);
+    let autoSlide = setInterval(nextSlide, slideInterval);
 });
