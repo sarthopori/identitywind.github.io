@@ -1,0 +1,18 @@
+[
+  {
+    "title": "5 Design Trends to Watch in 2025",
+    "date": "July 30, 2025",
+    "author": "Sanjoy Kumar",
+    "image": "post1-banner.jpg",
+    "excerpt": "From AI-generated art to retro-futurism, we're diving into the top 5 design trends that will shape the digital landscape in the coming year.",
+    "slug": "first-post"
+  },
+  {
+    "title": "Our Creative Process: From Idea to Final Product",
+    "date": "July 25, 2025",
+    "author": "Jane Smith",
+    "image": "post2-banner.jpg",
+    "excerpt": "Ever wonder how we create our designs? Here's a behind-the-scenes look at our creative workflow, from initial brief to final delivery.",
+    "slug": "second-post"
+  }
+]

@@ -1,0 +1,14 @@
+<a href="index.html" class="logo-link">
+    <img src="assets/img/logo.png" alt="Identity Wind Logo">
+</a>
+
+<nav>
+    <ul>
+        <li><a href="/index.html" class="{% if active_page == 'index' %}active{% endif %}">Home</a></li>
+        <li><a href="/about.html" class="{% if active_page == 'about' %}active{% endif %}">About</a></li>
+        <li><a href="/portfolio.html" class="{% if active_page == 'portfolio' %}active{% endif %}">Portfolio</a></li>
+        <li><a href="/services.html" class="{% if active_page == 'services' %}active{% endif %}">Services</a></li>
+        <li><a href="/contact.html" class="{% if active_page == 'contact' %}active{% endif %}">Contact Us</a></li>
+        <li><a href="/blog.html" class="{% if active_page == 'blog' %}active{% endif %}">Blog</a></li>
+    </ul>
+</nav>

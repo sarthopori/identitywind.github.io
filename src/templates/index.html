@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% set title = "Home" %}
+
+{% block content %}
+    <!-- Section: Promotional Banner -->
+    <section class="promotional-banner">
+        <div class="slider">
+            {% for banner_image in banners %}
+            <div class="slide">
+                <img src="content/images/banners/{{ banner_image }}" alt="Promotional Banner">
+            </div>
+            {% endfor %}
+        </div>
+        <!-- Only show buttons if there is more than one banner -->
+        {% if banners|length > 1 %}
+        <button class="slider-prev"><</button>
+        <button class="slider-next">></button>
+        {% endif %}
+    </section>
+
+        <!-- Section: Offer -->
+    <section class="offer-section">
+        <h2 class="section-heading">Experience the Future of Design</h2>
+        <div class="card-container">
+            {% for offer in offers %}
+            <a href="{{ offer.url }}" class="offer-card">
+                <img src="content/images/offers/{{ offer.image }}" alt="{{ offer.title }}">
+                <div class="card-overlay">
+                    <span class="card-title">{{ offer.title }}</span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        <div class="more-button-container">
+            <a href="offers-archive.html" class="more-button">More</a>
+        </div>
+    </section>
+
+        <!-- Section: Project -->
+    <section class="project-section">
+        <h2 class="section-heading">Recent Projects We Have Done</h2>
+        <div class="card-container">
+            {% for project in projects %}
+            <a href="{{ project.url }}" class="offer-card"> <!-- We can reuse the offer-card style -->
+                <img src="content/images/projects/{{ project.image }}" alt="{{ project.title }}">
+                <div class="card-overlay">
+                    <span class="card-title">{{ project.title }}</span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        <div class="more-button-container">
+            <a href="projects-archive.html" class="more-button">More</a>
+        </div>
+    </section>
+
+    <!-- Section: Video -->
+<section class="video-section">
+    <h2 class="section-heading">Video Tutorial/Class</h2>
+    <div class="card-container">
+        {% for video in videos %}
+        <div class="video-card" data-video-id="{{ video.youtube_id }}">
+            <img class="video-thumbnail" src="https://img.youtube.com/vi/{{ video.youtube_id }}/hqdefault.jpg" alt="{{ video.title }}">
+            <div class="play-icon">►</div>
+            <p class="video-title">{{ video.title }}</p>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="more-button-container">
+        <a href="videos-archive.html" class="more-button">More</a>
+    </div>
+</section>
+
+<!-- Section: Testimonial -->
+<section class="testimonial-section">
+    <h2 class="section-heading">Testimonial</h2>
+    <div class="testimonial-container">
+        {% for testimonial in testimonials %}
+        <div class="testimonial-card">
+            <p class="testimonial-feedback">"{{ testimonial.feedback }}"</p>
+            <p class="testimonial-client">- {{ testimonial.client_name }}</p>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Other sections will go here later -->
+{% endblock %}

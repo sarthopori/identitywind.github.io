@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% set title = post.title %}
+
+{% block content %}
+<article class="post-detail">
+    <header class="post-header">
+        <h1 class="post-title">{{ post.title }}</h1>
+        <p class="post-meta">By {{ post.author }} on {{ post.date }}</p>
+    </header>
+    <div class="post-featured-image">
+        <img src="/content/images/blog/{{ post.image }}" alt="{{ post.title }}">
+    </div>
+    <div class="post-content">
+        {{ content|safe }}
+    </div>
+</article>
+{% endblock %}

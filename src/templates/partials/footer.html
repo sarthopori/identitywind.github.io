@@ -1,0 +1,12 @@
+<div class="contact-info">
+    <h3>{{ footer.contact_heading }}</h3>
+    <p>Email: <a href="mailto:{{ footer.email }}">{{ footer.email }}</a></p>
+</div>
+
+<div class="social-media">
+    {% for social in footer.social_links %}
+        <a href="{{ social.url }}" target="_blank">{{ social.name }}</a>
+    {% endfor %}
+</div>
+
+<p>{{ footer.copyright_text }}</p>

@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% set title = "Services" %}
+
+{% block content %}
+<section class="services-section">
+    <h2 class="section-heading">{{ services.heading }}</h2>
+    <div class="services-grid">
+        {% for service_name in services.services_list %}
+        <div class="service-card">
+            <p>{{ service_name }}</p>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

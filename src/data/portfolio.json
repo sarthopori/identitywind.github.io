@@ -1,0 +1,12 @@
+[
+  {
+    "label": "Logo",
+    "folder": "logo",
+    "image": "logo/logo1.jpg"
+  },
+  {
+    "label": "Poster",
+    "folder": "poster",
+    "image": "poster/poster1.jpg"
+  }
+]

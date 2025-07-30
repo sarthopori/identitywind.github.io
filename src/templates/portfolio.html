@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% set title = "Portfolio" %}
+
+{% block content %}
+<section class="portfolio-grid-section">
+    <h2 class="section-heading">Our Portfolio</h2>
+    <div class="portfolio-grid">
+        {% for category in portfolio %}
+        <a href="portfolio-{{ category.folder }}.html" class="portfolio-category-card">
+            <img src="content/images/portfolio/{{ category.image }}" alt="Preview for {{ category.label }} category">
+            <div class="card-overlay">
+                <span class="card-title">{{ category.label }}</span>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

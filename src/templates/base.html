@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Identity Wind - {{ title }}</title>
+    
+    <!-- Paths now start with '/' to make them absolute -->
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <header>
+        {% include 'partials/header.html' %}
+    </header>
+
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer>
+        {% include 'partials/footer.html' %}
+    </footer>
+
+    <!-- Paths now start with '/' to make them absolute -->
+    <script src="/assets/js/slider.js"></script>
+    <script src="/assets/js/video-player.js"></script>
+
+    <!-- Video Player Modal -->
+    <div id="video-modal" class="modal-overlay">
+        <div class="modal-content">
+            <span class="close-modal">×</span>
+            <div class="video-container">
+                <iframe id="video-iframe" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

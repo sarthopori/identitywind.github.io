@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% set title = "Blog" %}
+
+{% block content %}
+<section class="blog-listing-section">
+    <h2 class="section-heading">Our Blog</h2>
+    <div class="blog-post-container">
+        {% for post in blog %}
+        <a href="blog/{{ post.slug }}.html" class="blog-post-card">
+            <div class="blog-card-image">
+                <img src="content/images/blog/{{ post.image }}" alt="{{ post.title }}">
+            </div>
+            <div class="blog-card-content">
+                <h3>{{ post.title }}</h3>
+                <p class="post-meta">By {{ post.author }} on {{ post.date }}</p>
+                <p class="post-excerpt">{{ post.excerpt }}</p>
+                <span class="read-more-link">Read More →</span>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

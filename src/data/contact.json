@@ -1,0 +1,22 @@
+{
+  "page_heading": "Get in Touch",
+  "page_subheading": "We're here to help you bring your vision to life. Contact us for project inquiries, collaborations, or just to say hello.",
+  "email": {
+    "label": "General Inquiries",
+    "address": "support@identitywind.com"
+  },
+  "phone": {
+    "label": "Give Us a Call",
+    "number": "+1 (555) 123-4567"
+  },
+  "address": {
+    "label": "Our Studio",
+    "line1": "123 Design Street",
+    "line2": "Creativity City, DS 54321"
+  },
+  "business_hours": {
+    "label": "Business Hours",
+    "days": "Monday - Friday",
+    "hours": "9:00 AM - 6:00 PM"
+  }
+}

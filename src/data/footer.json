@@ -1,0 +1,19 @@
+{
+  "contact_heading": "Contact Us",
+  "email": "support@identitywind.com",
+  "copyright_text": "© 2025 Identity Wind. All Rights Reserved.",
+  "social_links": [
+    {
+      "name": "Facebook",
+      "url": "https://facebook.com/your-profile"
+    },
+    {
+      "name": "Instagram",
+      "url": "https://instagram.com/your-profile"
+    },
+    {
+      "name": "LinkedIn",
+      "url": "https://linkedin.com/your-profile"
+    }
+  ]
+}

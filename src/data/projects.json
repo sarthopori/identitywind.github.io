@@ -1,0 +1,17 @@
+[
+  {
+    "title": "Corporate Rebranding for Alpha Inc.",
+    "image": "project1.jpg",
+    "url": "project-detail-alpha.html"
+  },
+  {
+    "title": "E-commerce Website for Beta Store",
+    "image": "project2.jpg",
+    "url": "project-detail-beta.html"
+  },
+  {
+    "title": "Marketing Campaign for Gamma",
+    "image": "project3.jpg",
+    "url": "project-detail-gamma.html"
+  }
+]

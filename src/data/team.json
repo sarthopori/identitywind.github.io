@@ -1,0 +1,21 @@
+[
+  {
+    "name": "Sanjoy Kumar",
+    "title": "CEO & Founder",
+    "image": "ceo.jpg",
+    "is_ceo": true,
+    "bio": "With over a decade of experience in graphic design and brand strategy, Sanjoy founded Identity Wind to help businesses discover their unique voice. His passion for clean aesthetics and user-centric design drives the company's creative vision."
+  },
+  {
+    "name": "Jane Smith",
+    "title": "Lead Designer",
+    "image": "member1.jpg",
+    "is_ceo": false
+  },
+  {
+    "name": "Peter Jones",
+    "title": "Head of Development",
+    "image": "member2.jpg",
+    "is_ceo": false
+  }
+]
