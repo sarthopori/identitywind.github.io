@@ -75,6 +75,7 @@ def build():
         template = env.get_template(filename)
         page_data = site_data.copy()
         page_data['active_page'] = filename.split('.')[0]
+        # THIS IS THE FIX: Check if it's index.html and add banner data
         if filename == "index.html" and os.path.exists(BANNERS_DIR):
             page_data['banners'] = os.listdir(BANNERS_DIR)
         output_html = template.render(page_data)
