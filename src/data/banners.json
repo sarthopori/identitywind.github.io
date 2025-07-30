@@ -1,0 +1,16 @@
+[
+  {
+    "image": "banner-1.jpg",
+    "headline": "Welcome to IdentityWind",
+    "subtext": "Your Vision, Our Expertise.",
+    "button_text": "Learn More",
+    "button_link": "/about.html"
+  },
+  {
+    "image": "banner-2.jpg",
+    "headline": "Creative Design Solutions",
+    "subtext": "From Logos to Full Branding.",
+    "button_text": "Our Portfolio",
+    "button_link": "/portfolio.html"
+  }
+]

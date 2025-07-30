@@ -7,9 +7,15 @@
         <div class="slider">
             {# This 'if' statement makes our template safer #}
             {% if banners %} 
-                {% for banner_image in banners %}
-                <div class="slide">
-                    <img src="/content/images/banners/{{ banner_image }}" alt="Promotional Banner">
+                {% for banner in banners %} {# Changed loop variable to 'banner' #}
+                <div class="slide" style="background-image: url('/content/images/banners/{{ banner.image }}');">
+                    <div class="banner-content">
+                        <h1>{{ banner.headline }}</h1>
+                        <p>{{ banner.subtext }}</p>
+                        {% if banner.button_text and banner.button_link %}
+                            <a href="{{ banner.button_link }}" class="btn">{{ banner.button_text }}</a>
+                        {% endif %}
+                    </div>
                 </div>
                 {% endfor %}
             {% endif %}

@@ -11,7 +11,7 @@ DATA_DIR = os.path.join(SRC_DIR, 'data')
 CONTENT_DIR = os.path.join(SRC_DIR, 'content')
 OUTPUT_DIR = 'docs'
 CONTENT_IMAGES_DIR = os.path.join(CONTENT_DIR, 'images')
-BANNERS_DIR = os.path.join(CONTENT_IMAGES_DIR, 'banners')
+BANNERS_DIR = os.path.join(CONTENT_IMAGES_DIR, 'banners') # This variable is no longer used for logic but is fine to keep
 PORTFOLIO_IMAGES_DIR = os.path.join(CONTENT_IMAGES_DIR, 'portfolio')
 
 def setup_project_directories():
@@ -59,7 +59,7 @@ def build():
     if os.path.exists(os.path.join(OUTPUT_DIR, 'content')): shutil.rmtree(os.path.join(OUTPUT_DIR, 'content'))
     shutil.copytree(CONTENT_DIR, os.path.join(OUTPUT_DIR, 'content'))
     print("Static files copied successfully.")
-    
+
     # Copy the CNAME file for the custom domain
     cname_src = os.path.join(SRC_DIR, 'CNAME')
     if os.path.exists(cname_src):
@@ -69,22 +69,18 @@ def build():
     site_data = load_site_data()
     env = Environment(loader=FileSystemLoader(TEMPLATES_DIR), autoescape=True)
 
-    # --- THE BUG FIX IS HERE ---
-    # We now prepare the data for each page individually inside its own loop.
-
     # Render Main Pages
     print("Rendering main pages...")
     main_templates = [f for f in os.listdir(TEMPLATES_DIR) if f.endswith('.html')]
     for filename in main_templates:
         page_data = site_data.copy()
         page_data['active_page'] = filename.split('.')[0]
-        
-        # This is the crucial part that was broken.
-        # We now check for index.html SPECIFICALLY in this loop.
-        if filename == "index.html" and os.path.exists(BANNERS_DIR):
-            page_data['banners'] = os.listdir(BANNERS_DIR)
-            print(f"Found banners for homepage: {page_data['banners']}") # Diagnostic print
-        
+
+        # <<< CHANGE IS HERE >>>
+        # The old 'if filename == "index.html"' block that was here has been REMOVED.
+        # Now, the 'banners' data from 'banners.json' (loaded by load_site_data)
+        # will be passed directly to the template.
+
         template = env.get_template(filename)
         output_html = template.render(page_data)
         with open(os.path.join(OUTPUT_DIR, filename), 'w', encoding='utf-8') as f: f.write(output_html)
