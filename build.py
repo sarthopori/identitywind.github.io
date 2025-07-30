@@ -9,26 +9,25 @@ SRC_DIR = 'src'
 TEMPLATES_DIR = os.path.join(SRC_DIR, 'templates')
 DATA_DIR = os.path.join(SRC_DIR, 'data')
 CONTENT_DIR = os.path.join(SRC_DIR, 'content')
-# Get image directories
-CONTENT_IMAGES_DIR = os.path.join(CONTENT_DIR, 'images')
-BANNERS_DIR = os.path.join(CONTENT_IMAGES_DIR, 'banners')
-PORTFOLIO_IMAGES_DIR = os.path.join(CONTENT_IMAGES_DIR, 'portfolio')
-# Output directory
 OUTPUT_DIR = 'docs'
+
+# THE FIX: This is the base path for your GitHub Pages site.
+BASE_URL = "/identitywind.github.io"
 
 def setup_project_directories():
     """Creates all necessary source folders if they don't exist."""
-    # This function is now perfect and needs no changes.
     print("Verifying project structure...")
     required_dirs = [
         TEMPLATES_DIR, os.path.join(TEMPLATES_DIR, 'partials'), DATA_DIR,
-        CONTENT_DIR, os.path.join(CONTENT_DIR, 'images', 'blog'), os.path.join(CONTENT_DIR, 'blog')
+        os.path.join(SRC_DIR, 'assets', 'img'),
+        os.path.join(CONTENT_DIR, 'images', 'portfolio'),
+        os.path.join(CONTENT_DIR, 'images', 'blog'), os.path.join(CONTENT_DIR, 'blog')
     ]
     portfolio_data_path = os.path.join(DATA_DIR, 'portfolio.json')
     if os.path.exists(portfolio_data_path):
         with open(portfolio_data_path, 'r', encoding='utf-8') as f:
             p_data = json.load(f)
-            for cat in p_data: required_dirs.append(os.path.join(PORTFOLIO_IMAGES_DIR, cat['folder']))
+            for cat in p_data: required_dirs.append(os.path.join(CONTENT_DIR, 'images', 'portfolio', cat['folder']))
     for path in required_dirs:
         if not os.path.exists(path):
             print(f"Directory not found. Creating: {path}")
@@ -51,7 +50,7 @@ def build():
     print("\nStarting website build...")
     setup_project_directories()
 
-    # Copy all static content (assets and images)
+    # Copy static content
     print("Copying static files...")
     if os.path.exists(os.path.join(OUTPUT_DIR, 'assets')): shutil.rmtree(os.path.join(OUTPUT_DIR, 'assets'))
     shutil.copytree(os.path.join(SRC_DIR, 'assets'), os.path.join(OUTPUT_DIR, 'assets'))
@@ -62,30 +61,27 @@ def build():
     site_data = load_site_data()
     env = Environment(loader=FileSystemLoader(TEMPLATES_DIR), autoescape=True)
 
-    # --- Render Main Pages ---
+    # THE FIX: Add the base_url to the data available to all templates
+    site_data['base_url'] = BASE_URL
+
+    # Render Main Pages
     print("Rendering main pages...")
     for filename in os.listdir(TEMPLATES_DIR):
         if filename.endswith('.html'):
             template = env.get_template(filename)
             page_data = site_data.copy()
-            
-            # THE FIX FOR ACTIVE MENU: Tell the template which page it is
             page_data['active_page'] = filename.split('.')[0]
-
-            # THE FIX FOR THE BANNER: If it's the homepage, add banner images
-            if filename == "index.html":
-                page_data['banners'] = [f for f in os.listdir(BANNERS_DIR) if f.endswith(('.png', '.jpg', '.jpeg'))]
-
+            if filename == "index.html" and os.path.exists(os.path.join(CONTENT_DIR, 'images', 'banners')):
+                page_data['banners'] = os.listdir(os.path.join(CONTENT_DIR, 'images', 'banners'))
             output_html = template.render(page_data)
             with open(os.path.join(OUTPUT_DIR, filename), 'w', encoding='utf-8') as f: f.write(output_html)
             print(f"- Generated Main Page: {filename}")
 
-    # --- Render Portfolio Pages (This section is already correct) ---
+    # Render Portfolio Pages
     print("Rendering portfolio pages...")
-    # ... (The rest of the build function remains the same as before)
     category_template = env.get_template('partials/portfolio_category.html')
     for category in site_data.get('portfolio', []):
-        image_path = os.path.join(PORTFOLIO_IMAGES_DIR, category['folder'])
+        image_path = os.path.join(CONTENT_DIR, 'images', 'portfolio', category['folder'])
         page_data = site_data.copy()
         page_data.update({'active_page': 'portfolio', 'category_name': category['label'], 'images': os.listdir(image_path), 'category_folder': category['folder']})
         output_html = category_template.render(page_data)
@@ -93,7 +89,7 @@ def build():
         with open(os.path.join(OUTPUT_DIR, output_filename), 'w', encoding='utf-8') as f: f.write(output_html)
         print(f"- Generated Portfolio Page: {output_filename}")
 
-    # --- Render Blog Posts (This section is already correct) ---
+    # Render Blog Posts
     print("Rendering blog posts...")
     post_template = env.get_template('partials/post_detail.html')
     blog_output_dir = os.path.join(OUTPUT_DIR, 'blog')

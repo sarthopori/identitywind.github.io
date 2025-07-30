@@ -2,37 +2,28 @@
 {% set title = "About Us" %}
 
 {% block content %}
-    <!-- NOTE: The banner for this page will be added in a later step for simplicity -->
-
-    <!-- Company Description Section -->
     <section class="about-description">
         <div class="about-text">
             <h2>{{ about.about_us_heading }}</h2>
             <p>{{ about.about_us_text }}</p>
         </div>
         <div class="about-image">
-            <!-- The image will be added later -->
-            <!-- <img src="content/images/{{ about.about_us_image }}" alt="About the company"> -->
+            <img src="{{ base_url }}/content/images/{{ about.about_us_image }}" alt="About the company">
         </div>
     </section>
-
-    <!-- Who We Are Section -->
     <section class="who-we-are">
         <h2>{{ about.who_we_are_heading }}</h2>
         <p>{{ about.who_we_are_text }}</p>
     </section>
-
-    <!-- Our Team Section -->
     <section class="team-section">
         <h2 class="section-heading">Our Team</h2>
         <div class="team-grid">
             {% for member in team %}
                 <div class="team-member-card {% if member.is_ceo %}ceo-card{% endif %}">
-                    <img src="content/images/team/{{ member.image }}" alt="Photo of {{ member.name }}">
+                    <img src="{{ base_url }}/content/images/team/{{ member.image }}" alt="Photo of {{ member.name }}">
                     <div class="member-info">
                         <h3>{{ member.name }}</h3>
                         <p class="member-title">{{ member.title }}</p>
-                        {# This is the new part: it checks if a bio exists before trying to display it. #}
                         {% if member.bio %}
                         <p class="member-bio">{{ member.bio }}</p>
                         {% endif %}
@@ -41,5 +32,4 @@
             {% endfor %}
         </div>
     </section>
-
 {% endblock %}
