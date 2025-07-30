@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>IdentityWind CMS - {{ title }}</title>
+    <style>
+        /* ... (all previous styles are the same) ... */
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; display: flex; background-color: #f4f4f9; }
+        .sidebar { width: 240px; background-color: #2c3e50; color: white; padding: 20px; height: 100vh; position: sticky; top: 0; display: flex; flex-direction: column; }
+        .sidebar h2 { color: #ecf0f1; text-align: center; }
+        .sidebar ul { list-style: none; padding: 0; margin-top: 30px; flex-grow: 1; }
+        .sidebar ul li a { color: #bdc3c7; text-decoration: none; display: block; padding: 12px 15px; border-radius: 4px; margin-bottom: 5px; transition: background-color 0.2s, color 0.2s; }
+        .sidebar ul li a:hover, .sidebar ul li a.active { background-color: #017090; color: white; font-weight: bold; }
+        .deploy-section a { background-color: #16a085; color: white; font-weight: bold; }
+        .deploy-section a:hover { background-color: #1abc9c; }
+        .main-content { flex-grow: 1; padding: 2em; }
+        /* ... (rest of the styles are the same) ... */
+        h1 { color: #017090; border-bottom: 2px solid #e0e0e0; padding-bottom: 10px; }
+        h2 { margin-top: 40px; color: #34495e; }
+        form { background-color: white; padding: 2em; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); display: flex; flex-direction: column; gap: 15px; max-width: 700px; }
+        label { font-weight: bold; }
+        input, textarea { padding: 10px; font-size: 1em; border-radius: 4px; border: 1px solid #ccc; width: 100%; box-sizing: border-box; font-family: inherit; }
+        button { padding: 12px; border: none; cursor: pointer; border-radius: 4px; font-size: 1em; font-weight: bold; }
+        .deploy-button { background-color: #16a085; color: white; }
+        .deploy-button:hover { background-color: #1abc9c; }
+        .output-log { background-color: #333; color: #eee; padding: 1em; border-radius: 8px; white-space: pre-wrap; word-wrap: break-word; }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div>
+            <h2>IdentityWind CMS</h2>
+            <ul>
+                <li><a href="/" class="{% if active_page == 'footer' %}active{% endif %}">Footer</a></li>
+                <li><a href="/testimonials" class="{% if active_page == 'testimonials' %}active{% endif %}">Testimonials</a></li>
+                <li><a href="/team" class="{% if active_page == 'team' %}active{% endif %}">Team</a></li>
+            </ul>
+        </div>
+        <div class="deploy-section">
+            <ul>
+                <li><a href="/deploy" class="{% if active_page == 'deploy' %}active{% endif %}">Deploy Website</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="main-content">
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

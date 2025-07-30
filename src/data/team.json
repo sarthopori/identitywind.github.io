@@ -17,5 +17,12 @@
     "title": "Head of Development",
     "image": "member2.jpg",
     "is_ceo": false
+  },
+  {
+    "name": "Sanjoy Kumar Paul",
+    "title": "Test profile",
+    "bio": "Test profileTest profileTest profileTest profileTest profile",
+    "image": "a-business-man-stands-against-white-background-with-his-arms-crossed-ai-generative-photo.jpg",
+    "is_ceo": false
   }
 ]

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% set title = "Edit Team Member" %}
+
+{% block content %}
+    <h1>Edit: {{ member.name }}</h1>
+    <p>Make your changes below. Uploading a new photo will replace the current one.</p>
+    <form method="post" enctype="multipart/form-data">
+        <label for="name">Name:</label>
+        <input type="text" name="name" value="{{ member.name }}" required>
+
+        <label for="title">Title:</label>
+        <input type="text" name="title" value="{{ member.title }}" required>
+
+        <label for="bio">Biography (Optional):</label>
+        <textarea name="bio" rows="4">{{ member.bio or '' }}</textarea>
+
+        <label for="image">Current Photo:</label>
+        <div>
+            <img src="/images/team/{{ member.image }}" class="list-thumbnail" alt="{{ member.name }}">
+            <span>{{ member.image }}</span>
+        </div>
+        
+        <label for="image">Upload New Photo (Optional):</label>
+        <input type="file" name="image" accept="image/png, image/jpeg">
+
+        <label>
+            {# This line checks the box if the member is the CEO #}
+            <input type="checkbox" name="is_ceo" value="true" {% if member.is_ceo %}checked{% endif %}> Is this person the CEO?
+        </label>
+
+        <button type="submit">Save Changes</button>
+    </form>
+    <a href="/team" class="back-link">← Back to Team List</a>
+{% endblock %}

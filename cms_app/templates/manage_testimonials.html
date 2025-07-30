@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% set title = "Manage Testimonials" %}
+
+{% block content %}
+    <h1>Manage Testimonials</h1>
+
+    <!-- Form for Adding a New Testimonial -->
+    <h2>Add New Testimonial</h2>
+    <form method="post" action="/testimonials/add">
+        <label for="client_name">Client Name:</label>
+        <input type="text" name="client_name" required>
+
+        <label for="feedback">Feedback:</label>
+        <textarea name="feedback" rows="4" required></textarea>
+
+        <button type="submit">Add Testimonial</button>
+    </form>
+
+    <!-- List of Existing Testimonials -->
+    <h2 class="list-heading">Existing Testimonials</h2>
+    <div class="item-list">
+        {# THE FIX IS HERE: We added |reverse to the loop #}
+        {% for testimonial in testimonials|reverse %}
+        <div class="list-item">
+            <div class="item-content">
+                <p><strong>{{ testimonial.client_name }}</strong></p>
+                <p>"{{ testimonial.feedback }}"</p>
+            </div>
+            <div class="item-actions">
+                {# We use loop.revindex0 because we reversed the loop #}
+                <a href="/testimonials/edit/{{ loop.revindex0 }}" class="edit-button">Edit</a>
+                <form method="post" action="/testimonials/delete/{{ loop.revindex0 }}" onsubmit="return confirm('Are you sure you want to delete this testimonial?');">
+                    <button type="submit" class="delete-button">Delete</button>
+                </form>
+            </div>
+        </div>
+        {% else %}
+        <p>No testimonials found.</p>
+        {% endfor %}
+    </div>
+{% endblock %}

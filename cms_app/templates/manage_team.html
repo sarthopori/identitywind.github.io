@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% set title = "Manage Team" %}
+
+{% block content %}
+    <h1>Manage Team Members</h1>
+
+    <!-- Form for Adding a New Team Member -->
+    <h2>Add New Member</h2>
+    {# The 'enctype' attribute is CRITICAL for file uploads to work #}
+    <form method="post" action="/team/add" enctype="multipart/form-data">
+        <label for="name">Name:</label>
+        <input type="text" name="name" required>
+
+        <label for="title">Title:</label>
+        <input type="text" name="title" required>
+
+        <label for="bio">Biography (Optional):</label>
+        <textarea name="bio" rows="4"></textarea>
+
+        <label for="image">Photo:</label>
+        <input type="file" name="image" accept="image/png, image/jpeg" required>
+
+        <label style="display: flex; flex-direction: row; align-items: center; gap: 10px;">
+            <input type="checkbox" name="is_ceo" value="true" style="width: auto;"> Is this person the CEO?
+        </label>
+
+        <button type="submit">Add Team Member</button>
+    </form>
+
+    <!-- List of Existing Team Members -->
+    <h2 class="list-heading">Existing Team Members</h2>
+    <div class="item-list">
+        {% for member in team|reverse %}
+        <div class="list-item">
+            <img src="/images/team/{{ member.image }}" class="list-thumbnail" alt="{{ member.name }}">
+            <div class="item-content">
+                <p><strong>{{ member.name }}</strong> ({{ member.title }})</p>
+                {% if member.is_ceo %}<span class="ceo-badge">CEO</span>{% endif %}
+            </div>
+            <div class="item-actions">
+                <a href="/team/edit/{{ loop.revindex0 }}" class="edit-button">Edit</a>
+                <form method="post" action="/team/delete/{{ loop.revindex0 }}" onsubmit="return confirm('Are you sure you want to delete this team member?');">
+                    <button type="submit" class="delete-button">Delete</button>
+                </form>
+            </div>
+        </div>
+        {% else %}
+        <p>No team members found.</p>
+        {% endfor %}
+    </div>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% set title = "Edit Footer" %}
+
+{% block content %}
+    <h1>Edit Footer Content</h1>
+    <p>Change the values below and click "Save Changes". Then, run your main `build.py` script to see the updates on your website.</p>
+    <form method="post">
+        <label for="email">Email:</label>
+        <input type="email" name="email" value="{{ data.email }}">
+
+        <label for="copyright_text">Copyright Text:</label>
+        <input type="text" name="copyright_text" value="{{ data.copyright_text }}">
+
+        <button type="submit">Save Changes</button>
+    </form>
+{% endblock %}
