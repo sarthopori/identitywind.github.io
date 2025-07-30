@@ -69,15 +69,23 @@ def build():
     site_data = load_site_data()
     env = Environment(loader=FileSystemLoader(TEMPLATES_DIR), autoescape=True)
 
+    # --- THE BUG FIX IS HERE ---
+    # We now prepare the data for each page individually inside its own loop.
+
     # Render Main Pages
     print("Rendering main pages...")
-    for filename in [f for f in os.listdir(TEMPLATES_DIR) if f.endswith('.html')]:
-        template = env.get_template(filename)
+    main_templates = [f for f in os.listdir(TEMPLATES_DIR) if f.endswith('.html')]
+    for filename in main_templates:
         page_data = site_data.copy()
         page_data['active_page'] = filename.split('.')[0]
-        # THIS IS THE FIX: Check if it's index.html and add banner data
+        
+        # This is the crucial part that was broken.
+        # We now check for index.html SPECIFICALLY in this loop.
         if filename == "index.html" and os.path.exists(BANNERS_DIR):
             page_data['banners'] = os.listdir(BANNERS_DIR)
+            print(f"Found banners for homepage: {page_data['banners']}") # Diagnostic print
+        
+        template = env.get_template(filename)
         output_html = template.render(page_data)
         with open(os.path.join(OUTPUT_DIR, filename), 'w', encoding='utf-8') as f: f.write(output_html)
         print(f"- Generated Main Page: {filename}")
@@ -86,8 +94,8 @@ def build():
     print("Rendering portfolio pages...")
     category_template = env.get_template('partials/portfolio_category.html')
     for category in site_data.get('portfolio', []):
+        page_data = site_data.copy() # Reset page_data for this specific page
         image_path = os.path.join(PORTFOLIO_IMAGES_DIR, category['folder'])
-        page_data = site_data.copy()
         page_data.update({'active_page': 'portfolio', 'category_name': category['label'], 'images': os.listdir(image_path), 'category_folder': category['folder']})
         output_html = category_template.render(page_data)
         output_filename = f"portfolio-{category['folder']}.html"
@@ -100,11 +108,11 @@ def build():
     blog_output_dir = os.path.join(OUTPUT_DIR, 'blog')
     if not os.path.exists(blog_output_dir): os.makedirs(blog_output_dir)
     for post in site_data.get('blog', []):
+        page_data = site_data.copy() # Reset page_data for this specific page
         md_path = os.path.join(CONTENT_DIR, 'blog', f"{post['slug']}.md")
         if os.path.exists(md_path):
             with open(md_path, 'r', encoding='utf-8') as f: md_content = f.read()
             html_content = markdown2.markdown(md_content)
-            page_data = site_data.copy()
             page_data.update({'active_page': 'blog', 'post': post, 'content': html_content})
             output_html = post_template.render(page_data)
             output_filename = f"{post['slug']}.html"

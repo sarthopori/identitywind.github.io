@@ -5,13 +5,18 @@
     <!-- Section: Promotional Banner -->
     <section class="promotional-banner">
         <div class="slider">
-            {% for banner_image in banners %}
-            <div class="slide">
-                <img src="/content/images/banners/{{ banner_image }}" alt="Promotional Banner">
-            </div>
-            {% endfor %}
+            {# This 'if' statement makes our template safer #}
+            {% if banners %} 
+                {% for banner_image in banners %}
+                <div class="slide">
+                    <img src="/content/images/banners/{{ banner_image }}" alt="Promotional Banner">
+                </div>
+                {% endfor %}
+            {% endif %}
         </div>
-        {% if banners|length > 1 %}
+        
+        {# Check the length of the banners list before showing buttons #}
+        {% if banners and banners|length > 1 %}
         <button class="slider-prev"><</button>
         <button class="slider-next">></button>
         {% endif %}
