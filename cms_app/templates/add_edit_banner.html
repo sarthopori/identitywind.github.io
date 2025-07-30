@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="cms-container">
+    <h2>{{ title }}</h2>
+
+    <form method="POST" enctype="multipart/form-data" action="{{ url_for('add_banner') if not banner else url_for('edit_banner', item_id=banner_id) }}">
+        <div class="form-group">
+            <label for="image">Banner Image:</label>
+            <input type="file" id="image" name="image" accept="image/*" {% if not banner %}required{% endif %}>
+            {% if banner and banner.image %}
+                <p>Current Image: <img src="{{ url_for('serve_content_image', filename='banners/' + banner.image) }}" alt="Current Banner" style="max-width: 200px; height: auto; margin-top: 10px; display: block; border: 1px solid #ddd;"></p>
+                <p>Filename: {{ banner.image }}</p>
+            {% endif %}
+            <small>Upload a new image to replace the current one (if editing) or add a new one (if adding).</small>
+        </div>
+        
+        <button type="submit" class="btn-submit">Save Banner</button>
+        <a href="{{ url_for('manage_banners') }}" class="btn-cancel">Cancel</a>
+    </form>
+</div>
+{% endblock %}
