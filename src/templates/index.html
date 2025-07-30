@@ -7,7 +7,7 @@
         <div class="slider">
             {% for banner_image in banners %}
             <div class="slide">
-                <img src="{{ base_url }}/content/images/banners/{{ banner_image }}" alt="Promotional Banner">
+                <img src="/content/images/banners/{{ banner_image }}" alt="Promotional Banner">
             </div>
             {% endfor %}
         </div>
@@ -22,8 +22,8 @@
         <h2 class="section-heading">Experience the Future of Design</h2>
         <div class="card-container">
             {% for offer in offers %}
-            <a href="{{ base_url }}/{{ offer.url }}" class="offer-card">
-                <img src="{{ base_url }}/content/images/offers/{{ offer.image }}" alt="{{ offer.title }}">
+            <a href="/{{ offer.url }}" class="offer-card">
+                <img src="/content/images/offers/{{ offer.image }}" alt="{{ offer.title }}">
                 <div class="card-overlay">
                     <span class="card-title">{{ offer.title }}</span>
                 </div>
@@ -31,7 +31,7 @@
             {% endfor %}
         </div>
         <div class="more-button-container">
-            <a href="{{ base_url }}/offers-archive.html" class="more-button">More</a>
+            <a href="/offers-archive.html" class="more-button">More</a>
         </div>
     </section>
 
@@ -40,8 +40,8 @@
         <h2 class="section-heading">Recent Projects We Have Done</h2>
         <div class="card-container">
             {% for project in projects %}
-            <a href="{{ base_url }}/{{ project.url }}" class="offer-card">
-                <img src="{{ base_url }}/content/images/projects/{{ project.image }}" alt="{{ project.title }}">
+            <a href="/{{ project.url }}" class="offer-card">
+                <img src="/content/images/projects/{{ project.image }}" alt="{{ project.title }}">
                 <div class="card-overlay">
                     <span class="card-title">{{ project.title }}</span>
                 </div>
@@ -49,7 +49,7 @@
             {% endfor %}
         </div>
         <div class="more-button-container">
-            <a href="{{ base_url }}/projects-archive.html" class="more-button">More</a>
+            <a href="/projects-archive.html" class="more-button">More</a>
         </div>
     </section>
 
@@ -66,7 +66,7 @@
             {% endfor %}
         </div>
         <div class="more-button-container">
-            <a href="{{ base_url }}/videos-archive.html" class="more-button">More</a>
+            <a href="/videos-archive.html" class="more-button">More</a>
         </div>
     </section>
 

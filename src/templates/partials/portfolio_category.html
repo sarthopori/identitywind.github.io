@@ -7,12 +7,12 @@
     <div class="portfolio-image-grid">
         {% for image in images %}
         <div class="portfolio-image-item">
-            <img src="content/images/portfolio/{{ category_folder }}/{{ image }}" alt="{{ category_name }} work">
+            <img src="/content/images/portfolio/{{ category_folder }}/{{ image }}" alt="{{ category_name }} work">
         </div>
         {% endfor %}
     </div>
     <div class="more-button-container">
-        <a href="portfolio.html" class="more-button">← Back to Portfolio</a>
+        <a href="/portfolio.html" class="more-button">← Back to Portfolio</a>
     </div>
 </section>
 {% endblock %}
