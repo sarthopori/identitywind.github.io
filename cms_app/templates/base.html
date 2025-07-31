@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <title>IdentityWind CMS - {{ title }}</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* --- FONT IMPORT FIX --- */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        /* --- CSS Variables for Easy Theming --- */
         :root {
             --bg-color: #f8f9fa; --sidebar-bg: #1e293b; --sidebar-text: #cbd5e1;
             --sidebar-hover-bg: #334155; --sidebar-active-bg: #017090; --card-bg: #ffffff;
-            --border-color: #e2e8f0; --text-primary: #1e293b; --text-secondary: #64748b;
+            --border-color: #e2e8f0; --text-primary: #1e2d3b; --text-secondary: #64748b;
             --accent-color: #017090; --accent-color-hover: #015a73; --danger-color: #dc2626;
             --danger-color-hover: #b91c1c; --font-family: 'Inter', sans-serif;
         }
@@ -28,7 +29,6 @@
             color: white; text-align: center; margin: 0 0 30px 0; font-size: 1.25rem; font-weight: 600;
         }
         .sidebar ul { list-style: none; padding: 0; margin: 0; flex-grow: 1; }
-        .sidebar ul li { margin-bottom: 4px; }
         .sidebar ul li a {
             color: var(--sidebar-text); text-decoration: none; display: block; padding: 10px 15px;
             border-radius: 6px; font-size: 0.95rem; font-weight: 500; transition: all 0.2s;
@@ -38,7 +38,7 @@
         .deploy-section { margin-top: auto; padding-top: 20px; }
         .deploy-section ul li a { background-color: #16a085; color: white; text-align: center; font-weight: 600; }
         .deploy-section ul li a:hover { background-color: #1abc9c; }
-        .page-header { margin-bottom: 2rem; }
+        .page-header { margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; }
         .page-header h1 { font-size: 2rem; font-weight: 700; margin: 0; }
         .card {
             background-color: var(--card-bg); border-radius: 8px; border: 1px solid var(--border-color);
@@ -50,41 +50,29 @@
         .card-footer { padding: 1rem 1.5rem; background-color: #fdfdfd; border-top: 1px solid var(--border-color); text-align: right; }
         .form-group { margin-bottom: 1.25rem; }
         label { font-weight: 500; display: block; margin-bottom: 0.5rem; font-size: 0.9rem; }
-        input[type="text"], input[type="email"], input[type="url"], input[type="number"], textarea {
-            padding: 10px 12px; font-size: 1rem; border-radius: 6px; border: 1px solid var(--border-color);
-            width: 100%; box-sizing: border-box; font-family: inherit; transition: all 0.2s;
-        }
+        input[type="text"], input[type="email"], input[type="url"], input[type="number"], textarea { padding: 10px 12px; font-size: 1rem; border-radius: 6px; border: 1px solid var(--border-color); width: 100%; box-sizing: border-box; font-family: inherit; transition: all 0.2s; }
         input:focus, textarea:focus { border-color: var(--accent-color); box-shadow: 0 0 0 3px rgba(1, 112, 144, 0.1); outline: none; }
-        textarea { min-height: 120px; resize: vertical; }
-        small { color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.5rem; display: block; }
-        .btn {
-            padding: 10px 18px; border: none; cursor: pointer; border-radius: 6px; font-size: 0.95rem; font-weight: 600;
-            text-decoration: none; display: inline-block; text-align: center; transition: all 0.2s;
-        }
+        .btn { padding: 10px 18px; border: none; cursor: pointer; border-radius: 6px; font-size: 0.95rem; font-weight: 600; text-decoration: none; display: inline-block; text-align: center; transition: all 0.2s; }
         .btn-primary { background-color: var(--accent-color); color: white; }
         .btn-primary:hover { background-color: var(--accent-color-hover); }
         .btn-secondary { background-color: #e2e8f0; color: #334155; }
         .btn-secondary:hover { background-color: #cbd5e1; }
         .btn-danger { background-color: var(--danger-color); color: white; }
         .btn-danger:hover { background-color: var(--danger-color-hover); }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem; }
         .grid .card-body { display: flex; align-items: center; gap: 1rem; }
         .grid .card-content { flex-grow: 1; }
         
-        /* --- NEW: UNIFIED IMAGE SIZING --- */
+        /* --- UNIFIED IMAGE SIZING --- */
         .grid-item-image {
-            width: 70px;
-            height: 70px;
-            object-fit: cover; /* This is the magic property */
-            border-radius: 6px;
-            border: 1px solid var(--border-color);
-            flex-shrink: 0; /* Prevents the image from shrinking */
+            width: 80px; height: 80px; object-fit: cover; border-radius: 6px;
+            border: 1px solid var(--border-color); flex-shrink: 0; background-color: #f8f9fa;
         }
-        .grid-item-image.rounded { border-radius: 50%; } /* For circular images like team photos */
+        .grid-item-image.rounded { border-radius: 50%; }
+        .grid-item-image.contain { object-fit: contain; } /* For logos */
         
         .flash-message { padding: 1rem 1.5rem; margin-bottom: 2rem; border-radius: 6px; font-weight: 500; color: white; }
-        .flash-message.success { background-color: #16a085; }
-        .flash-message.error { background-color: var(--danger-color); }
+        .flash-message.success { background-color: #16a085; } .flash-message.error { background-color: var(--danger-color); }
     </style>
 </head>
 <body>
@@ -94,7 +82,7 @@
             <ul>
                 <li class="{% if active_page == 'navigation' %}active{% endif %}"><a href="{{ url_for('manage_navigation') }}">Navigation</a></li>
                 <li class="{% if active_page == 'theme_settings' %}active{% endif %}"><a href="{{ url_for('edit_theme_settings') }}">Theme Settings</a></li>
-                <hr style="border-color: #334155; margin: 10px;">
+                <hr style="border-color: #334155; margin: 10px 15px;">
                 <li class="{% if active_page == 'banners' %}active{% endif %}"><a href="{{ url_for('manage_banners') }}">Banners</a></li>
                 <li class="{% if active_page == 'offers' %}active{% endif %}"><a href="{{ url_for('manage_offers') }}">Offers</a></li>
                 <li class="{% if active_page == 'projects' %}active{% endif %}"><a href="{{ url_for('manage_projects') }}">Projects</a></li>
@@ -104,7 +92,7 @@
                 <li class="{% if active_page == 'clients' %}active{% endif %}"><a href="{{ url_for('manage_clients') }}">Clients</a></li>
                 <li class="{% if active_page == 'blog_posts' %}active{% endif %}"><a href="{{ url_for('manage_blog_posts') }}">Blog Posts</a></li>
                 <li class="{% if active_page == 'portfolio_categories' %}active{% endif %}"><a href="{{ url_for('manage_portfolio_categories') }}">Portfolio</a></li>
-                <hr style="border-color: #334155; margin: 10px;">
+                <hr style="border-color: #334155; margin: 10px 15px;">
                 <li class="{% if active_page == 'about_page' %}active{% endif %}"><a href="{{ url_for('edit_about_page') }}">About Page</a></li>
                 <li class="{% if active_page == 'services_page' %}active{% endif %}"><a href="{{ url_for('edit_services_page') }}">Services Page</a></li>
                 <li class="{% if active_page == 'contact_page' %}active{% endif %}"><a href="{{ url_for('edit_contact_page') }}">Contact Page</a></li>
@@ -112,21 +100,16 @@
             </ul>
         </nav>
         <div class="deploy-section">
-            <ul>
-                <li class="{% if active_page == 'deploy' %}active{% endif %}"><a href="{{ url_for('deploy') }}">Deploy Website</a></li>
-            </ul>
+            <ul><li class="{% if active_page == 'deploy' %}active{% endif %}"><a href="{{ url_for('deploy') }}">Deploy Website</a></li></ul>
         </div>
     </aside>
     <main class="main-content">
         {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                <div class="flash-message {{ category }}">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
+            {% if messages %}{% for category, message in messages %}<div class="flash-message {{ category }}">{{ message }}</div>{% endfor %}{% endif %}
         {% endwith %}
         <div class="page-header">
             <h1>{{ title|replace("_", " ")|title }}</h1>
+            {% block page_actions %}{% endblock %}
         </div>
         {% block content %}{% endblock %}
     </main>
