@@ -4,16 +4,18 @@
     <meta charset="UTF-8">
     <title>IdentityWind CMS - {{ title }}</title>
     <style>
+        /* General Layout */
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; display: flex; background-color: #f4f4f9; }
         .sidebar { width: 240px; background-color: #2c3e50; color: white; padding: 20px; height: 100vh; position: sticky; top: 0; display: flex; flex-direction: column; }
         .sidebar h2 { color: #ecf0f1; text-align: center; margin-bottom: 30px; }
         .sidebar ul { list-style: none; padding: 0; margin: 0; flex-grow: 1; }
         .sidebar ul li { margin-bottom: 5px; }
         .sidebar ul li a { color: #bdc3c7; text-decoration: none; display: block; padding: 12px 15px; border-radius: 4px; transition: background-color 0.2s, color 0.2s; }
-        .sidebar ul li a:hover, .sidebar ul li.active a { background-color: #017090; color: white; font-weight: bold; } /* Corrected active class */
+        .sidebar ul li a:hover, .sidebar ul li.active a { background-color: #017090; color: white; font-weight: bold; }
         
+        /* Deploy Section */
         .deploy-section { margin-top: auto; padding-top: 20px; border-top: 1px solid #3c5061; }
-        .deploy-section ul { margin-top: 0; } /* Reset margin for deploy ul */
+        .deploy-section ul { margin-top: 0; }
         .deploy-section ul li a { background-color: #16a085; color: white; text-align: center; }
         .deploy-section ul li a:hover { background-color: #1abc9c; }
 
@@ -28,6 +30,17 @@
         input[type="text"], input[type="email"], textarea, input[type="file"] { padding: 10px; font-size: 1em; border-radius: 4px; border: 1px solid #ccc; width: calc(100% - 22px); box-sizing: border-box; font-family: inherit; }
         textarea { min-height: 100px; resize: vertical; }
         input[type="file"] { border: 1px solid #ccc; padding: 8px; background-color: #f9f9f9; }
+        
+        /* Checkbox specific styling */
+        input[type="checkbox"] {
+            width: auto; /* Override width: 100% */
+            margin-right: 10px;
+            transform: scale(1.2); /* Make checkbox slightly larger */
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+        }
 
         /* Buttons */
         button, .btn-add, .btn-submit, .btn-cancel, .btn-edit, .btn-delete {
@@ -54,7 +67,7 @@
         .btn-delete { background-color: #e74c3c; color: white; }
         .btn-delete:hover { background-color: #c0392b; }
 
-        /* Data List Display (for manage pages like testimonials, team, banners) */
+        /* Data List Display (for manage pages like testimonials, team, banners, offers) */
         .data-list-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Responsive grid */
@@ -100,10 +113,68 @@
             margin-top: 15px;
             padding-top: 15px;
             border-top: 1px solid #eee;
-            text-align: right; /* Align action buttons to the right */
+            text-align: right;
         }
         .data-item .item-actions .btn-delete {
-            margin-right: 0; /* Remove right margin for the last button */
+            margin-right: 0;
+        }
+
+        /* Flash Messages */
+        .flash-message {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            font-weight: bold;
+            color: white;
+            opacity: 0.9;
+            animation: fadeOut 5s forwards; /* Fade out after 5 seconds */
+        }
+        .flash-message.success {
+            background-color: #28a745; /* Green */
+        }
+        .flash-message.error {
+            background-color: #dc3545; /* Red */
+        }
+        .flash-message.warning {
+            background-color: #ffc107; /* Yellow */
+            color: #333;
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 0.9; }
+            to { opacity: 0; display: none; }
+        }
+
+        /* For footer social links: dynamic input fields */
+        .social-link-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: flex-end; /* Align inputs and button at the bottom */
+        }
+        .social-link-group input {
+            flex: 1; /* Distribute space */
+        }
+        .social-link-group button {
+            margin: 0; /* Remove default button margin */
+        }
+        .add-social-button {
+            background-color: #6c757d;
+            color: white;
+            padding: 8px 12px;
+            font-size: 0.8em;
+        }
+        .add-social-button:hover {
+            background-color: #5a6268;
+        }
+        .remove-social-button {
+            background-color: #dc3545;
+            color: white;
+            padding: 8px 12px;
+            font-size: 0.8em;
+        }
+        .remove-social-button:hover {
+            background-color: #c82333;
         }
     </style>
 </head>
@@ -124,6 +195,30 @@
                 <li class="{% if active_page == 'banners' %}active{% endif %}">
                     <a href="{{ url_for('manage_banners') }}">Manage Banners</a>
                 </li>
+                <li class="{% if active_page == 'offers' %}active{% endif %}">
+                    <a href="{{ url_for('manage_offers') }}">Manage Offers</a>
+                </li>
+                <li class="{% if active_page == 'projects' %}active{% endif %}">
+                    <a href="{{ url_for('manage_projects') }}">Manage Projects</a>
+                </li>
+                <li class="{% if active_page == 'videos' %}active{% endif %}">
+                    <a href="{{ url_for('manage_videos') }}">Manage Videos</a>
+                </li>
+                <li class="{% if active_page == 'blog_posts' %}active{% endif %}">
+                    <a href="{{ url_for('manage_blog_posts') }}">Manage Blog Posts</a>
+                </li>
+                <li class="{% if active_page == 'portfolio_categories' %}active{% endif %}">
+                    <a href="{{ url_for('manage_portfolio_categories') }}">Manage Portfolio Categories</a>
+                </li>
+                <li class="{% if active_page == 'about_page' %}active{% endif %}">
+                    <a href="{{ url_for('edit_about_page') }}">Edit About Page</a>
+                </li>
+                <li class="{% if active_page == 'services_page' %}active{% endif %}">
+                    <a href="{{ url_for('edit_services_page') }}">Edit Services Page</a>
+                </li>
+                <li class="{% if active_page == 'contact_page' %}active{% endif %}">
+                    <a href="{{ url_for('edit_contact_page') }}">Edit Contact Page</a>
+                </li>
             </ul>
         </div>
         <div class="deploy-section">
@@ -135,7 +230,49 @@
         </div>
     </div>
     <div class="main-content">
+        {# Flash Messages Display #}
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                <div class="flash-message {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
         {% block content %}{% endblock %}
     </div>
+
+    <script>
+        // JavaScript for dynamic social link fields in footer (if you implemented this)
+        // This is a basic example; for full dynamism, a more robust JS solution might be needed.
+        document.addEventListener('DOMContentLoaded', function() {
+            const socialLinksContainer = document.getElementById('social-links-container');
+            const addSocialBtn = document.getElementById('add-social-link');
+
+            if (addSocialBtn) {
+                addSocialBtn.addEventListener('click', function() {
+                    const newIndex = socialLinksContainer.children.length;
+                    const newDiv = document.createElement('div');
+                    newDiv.className = 'social-link-group';
+                    newDiv.innerHTML = `
+                        <input type="text" name="social_name" placeholder="Name (e.g., Facebook)" value="">
+                        <input type="text" name="social_url" placeholder="URL (e.g., https://facebook.com/)" value="">
+                        <button type="button" class="remove-social-button">Remove</button>
+                    `;
+                    socialLinksContainer.appendChild(newDiv);
+                    newDiv.querySelector('.remove-social-button').addEventListener('click', function() {
+                        newDiv.remove();
+                    });
+                });
+            }
+
+            // Attach remove listener to existing buttons
+            document.querySelectorAll('.remove-social-button').forEach(button => {
+                button.addEventListener('click', function() {
+                    button.closest('.social-link-group').remove();
+                });
+            });
+        });
+    </script>
 </body>
 </html>

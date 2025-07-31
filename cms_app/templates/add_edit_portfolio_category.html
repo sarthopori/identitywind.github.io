@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="cms-container">
+    <h2>{{ title }}</h2>
+
+    <form method="POST" enctype="multipart/form-data" action="{{ url_for('add_portfolio_category') if not category else url_for('edit_portfolio_category', item_id=category_id) }}">
+        <div class="form-group">
+            <label for="label">Category Label (e.g., Logo Design):</label>
+            <input type="text" id="label" name="label" value="{{ category.label if category else '' }}" required>
+            <small>This is the display name for the category on your website.</small>
+        </div>
+        <div class="form-group">
+            <label for="folder_name">Category Folder Name (e.g., logo-design):</label>
+            <input type="text" id="folder_name" name="folder_name" value="{{ category.folder if category else '' }}" required>
+            <small>This will be the actual folder name in <code>src/content/images/portfolio/</code> where images for this category are stored. Use lowercase, hyphens instead of spaces.</small>
+        </div>
+        <div class="form-group">
+            <label for="image">Category Thumbnail Image:</label>
+            <input type="file" id="image" name="image" accept="image/*">
+            {% if category and category.image %}
+                <p>Current Image: <img src="{{ url_for('serve_content_image', filename='portfolio/' + category.image) }}" alt="Current Category Thumbnail" style="max-width: 200px; height: auto; margin-top: 10px; display: block; border: 1px solid #ddd;"></p>
+                <p>Filename: {{ category.image }}</p>
+            {% endif %}
+            <small>Upload a new image to replace the current category thumbnail.</small>
+        </div>
+        
+        <button type="submit" class="btn-submit">Save Category</button>
+        <a href="{{ url_for('manage_portfolio_categories') }}" class="btn-cancel">Cancel</a>
+    </form>
+</div>
+{% endblock %}

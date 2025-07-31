@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="cms-container">
+    <h2>{{ title }}</h2>
+
+    <form method="POST" action="{{ url_for('add_video') if not video else url_for('edit_video', item_id=video_id) }}">
+        <div class="form-group">
+            <label for="title">Video Title:</label>
+            <input type="text" id="title" name="title" value="{{ video.title if video else '' }}" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="youtube_id">YouTube Video ID:</label>
+            <input type="text" id="youtube_id" name="youtube_id" value="{{ video.youtube_id if video else '' }}" required>
+            <small>Find this in the YouTube video URL (e.g., 'dQw4w9WgXcQ' from youtube.com/watch?v=dQw4w9WgXcQ)</small>
+        </div>
+        
+        <button type="submit" class="btn-submit">Save Video</button>
+        <a href="{{ url_for('manage_videos') }}" class="btn-cancel">Cancel</a>
+    </form>
+</div>
+{% endblock %}

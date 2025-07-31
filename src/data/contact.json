@@ -7,16 +7,16 @@
   },
   "phone": {
     "label": "Give Us a Call",
-    "number": "+1 (555) 123-4567"
+    "number": "+880 1521 453393"
   },
   "address": {
     "label": "Our Studio",
     "line1": "123 Design Street",
-    "line2": "Creativity City, DS 54321"
+    "line2": "Khulna"
   },
   "business_hours": {
     "label": "Business Hours",
     "days": "Monday - Friday",
-    "hours": "9:00 AM - 6:00 PM"
+    "hours": "8PM - 1AM"
   }
 }

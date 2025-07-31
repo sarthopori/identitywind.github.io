@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Edit Contact Page{% endblock %}
+
+{% block content %}
+<div class="cms-container">
+    <h2>Edit Contact Page Content</h2>
+
+    <form method="POST" action="{{ url_for('edit_contact_page') }}">
+        <div class="form-group">
+            <label for="page_heading">Page Heading:</label>
+            <input type="text" id="page_heading" name="page_heading" value="{{ data.page_heading }}" required>
+        </div>
+        <div class="form-group">
+            <label for="page_subheading">Page Subheading:</label>
+            <textarea id="page_subheading" name="page_subheading" required>{{ data.page_subheading }}</textarea>
+        </div>
+
+        <h3>Email Information</h3>
+        <div class="form-group">
+            <label for="email_label">Email Label:</label>
+            <input type="text" id="email_label" name="email_label" value="{{ data.email.label }}" required>
+        </div>
+        <div class="form-group">
+            <label for="email_address">Email Address:</label>
+            <input type="email" id="email_address" name="email_address" value="{{ data.email.address }}" required>
+        </div>
+
+        <h3>Phone Information</h3>
+        <div class="form-group">
+            <label for="phone_label">Phone Label:</label>
+            <input type="text" id="phone_label" name="phone_label" value="{{ data.phone.label }}" required>
+        </div>
+        <div class="form-group">
+            <label for="phone_number">Phone Number:</label>
+            <input type="text" id="phone_number" name="phone_number" value="{{ data.phone.number }}" required>
+        </div>
+
+        <h3>Address Information</h3>
+        <div class="form-group">
+            <label for="address_label">Address Label:</label>
+            <input type="text" id="address_label" name="address_label" value="{{ data.address.label }}" required>
+        </div>
+        <div class="form-group">
+            <label for="address_line1">Address Line 1:</label>
+            <input type="text" id="address_line1" name="address_line1" value="{{ data.address.line1 }}" required>
+        </div>
+        <div class="form-group">
+            <label for="address_line2">Address Line 2:</label>
+            <input type="text" id="address_line2" name="address_line2" value="{{ data.address.line2 }}" required>
+        </div>
+
+        <h3>Business Hours</h3>
+        <div class="form-group">
+            <label for="business_hours_label">Business Hours Label:</label>
+            <input type="text" id="business_hours_label" name="business_hours_label" value="{{ data.business_hours.label }}" required>
+        </div>
+        <div class="form-group">
+            <label for="business_hours_days">Business Days:</label>
+            <input type="text" id="business_hours_days" name="business_hours_days" value="{{ data.business_hours.days }}" required>
+        </div>
+        <div class="form-group">
+            <label for="business_hours_hours">Business Hours:</label>
+            <input type="text" id="business_hours_hours" name="business_hours_hours" value="{{ data.business_hours.hours }}" required>
+        </div>
+        
+        <button type="submit" class="btn-submit">Save Contact Page</button>
+    </form>
+</div>
+{% endblock %}

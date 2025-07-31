@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Manage Portfolio Categories{% endblock %}
+
+{% block content %}
+<div class="cms-container">
+    <h2>Manage Portfolio Categories</h2>
+    <a href="{{ url_for('add_portfolio_category') }}" class="btn-add">Add New Category</a>
+
+    {% if categories %}
+    <div class="data-list-grid">
+        {% for category in categories %}
+        <div class="data-item card">
+            <div class="item-header">
+                <img src="{{ url_for('serve_content_image', filename='portfolio/' + category.image) if category.image else '/assets/img/placeholder.jpg' }}" alt="{{ category.label }}" class="item-image">
+                <p class="item-title">{{ category.label }}</p>
+            </div>
+            <p><strong>Folder:</strong> <code>{{ category.folder }}</code></p>
+            <small>Images for this category should be in <code>src/content/images/portfolio/{{ category.folder }}/</code></small>
+            <div class="item-actions">
+                <a href="{{ url_for('edit_portfolio_category', item_id=loop.index0) }}" class="btn-edit">Edit</a>
+                <form action="{{ url_for('delete_portfolio_category', item_id=loop.index0) }}" method="POST" onsubmit="return confirm('WARNING: This will delete the category and its entire image folder (src/content/images/portfolio/{{ category.folder }}/). Are you absolutely sure?');" style="display:inline;">
+                    <button type="submit" class="btn-delete">Delete</button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p>No portfolio categories added yet. Click "Add New Category" to get started!</p>
+    {% endif %}
+</div>
+{% endblock %}
