@@ -917,3 +917,10 @@ Responsive Design - Media Queries
     color: #555;
     margin-bottom: 0.5rem;
 }
+/* --- About Page Image Sizing Fix --- */
+.about-image img {
+    width: 100%;           /* Make the image take up the full width of its container */
+    height: 100%;          /* Make the image take up the full height of its container */
+    object-fit: cover;     /* Crop the image to fit without stretching or squashing */
+    border-radius: 8px;    /* Match the border-radius of the container */
+}
