@@ -886,3 +886,34 @@ Responsive Design - Media Queries
         padding: 20px;
     }
 }
+/* --- About Page Content Styling --- */
+.about-content {
+    font-family: var(--body-font); /* Ensures the correct brand font is used */
+}
+
+.about-content h2 {
+    font-family: var(--heading-font); /* Ensures correct heading font */
+    font-size: 36px; /* A slightly smaller, more refined size for page headings */
+    color: #333; /* Darker text for better contrast */
+    margin-bottom: 1.5rem;
+}
+
+.about-content p {
+    font-size: 17px; /* Slightly larger body text for readability */
+    line-height: 1.8; /* Increased line spacing is key for readability */
+    color: #555; /* A softer black for body text */
+    margin-bottom: 1.5em;
+}
+
+.about-content ul {
+    list-style-type: disc;
+    padding-left: 25px;
+    margin: -1rem 0 1.5rem 0;
+}
+
+.about-content ul li {
+    font-size: 17px;
+    line-height: 1.8;
+    color: #555;
+    margin-bottom: 0.5rem;
+}

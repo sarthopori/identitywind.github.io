@@ -4,26 +4,55 @@
 {% block content %}
     <section class="about-description">
         <div class="about-text">
-            <h2>{{ about.about_us_heading }}</h2>
-            <p>{{ about.about_us_text }}</p>
+            <!-- WRAPPER DIV FOR NEW STYLING -->
+            <div class="about-content">
+                <h2>{{ about.about_us_heading }}</h2>
+                <!-- PARAGRAPH 1: INTRODUCTION -->
+                <p>
+                    Identity Wind is a forward-thinking digital agency specializing in impactful, results-driven design and marketing solutions. Since 2022, we've helped brands express their identity and connect with audiences through high-quality graphic design.
+                </p>
+                <!-- PARAGRAPH 2: EXPANSION & SERVICES -->
+                <p>
+                    Starting September 2025, we're expanding our capabilities to offer a full suite of digital services, including:
+                </p>
+                <!-- LIST OF SERVICES FOR EMPHASIS -->
+                <ul>
+                    <li>Web Design & Development</li>
+                    <li>Digital Marketing Strategy</li>
+                    <li>Google SEO (Search Engine Optimization)</li>
+                    <li>Google Ads & Paid Advertising Campaigns</li>
+                </ul>
+                <!-- PARAGRAPH 3: CONCLUSION -->
+                <p>
+                    We don’t just create — we build brands that grow. What sets us apart is our expert team, with most members bringing 5 to 8+ years of professional experience. We're designers, developers, and strategists united by a passion for quality, creativity, and performance. At Identity Wind, we believe great brands aren’t just seen — they’re remembered.
+                </p>
+            </div>
         </div>
         <div class="about-image">
-            <!-- MODIFIED IMAGE TAG -->
             <img data-src="/content/images/{{ about.about_us_image|replace('.jpg', '.webp')|replace('.jpeg', '.webp') }}" 
-                 alt="About the company" 
+                 alt="A photo representing the Identity Wind creative agency" 
                  class="lazyload">
         </div>
     </section>
+
     <section class="who-we-are">
-        <h2>{{ about.who_we_are_heading }}</h2>
-        <p>{{ about.who_we_are_text }}</p>
+        <!-- WRAPPER DIV FOR NEW STYLING -->
+        <div class="about-content">
+            <h2>{{ about.who_we_are_heading }}</h2>
+            <p>
+                At Identity Wind, we are a team of passionate creatives, strategists, and digital experts dedicated to helping brands stand out in a crowded digital world. Founded in 2022, we began our journey as a graphic design-focused agency, committed to delivering visually stunning and meaningful designs.
+            </p>
+            <p>
+                As our clients’ needs evolved, so did we. Today, we are growing into a full-service digital agency. We work collaboratively, combining design excellence with smart marketing strategies to help your brand grow, engage, and lead. More than a service provider, we’re your creative partner — here to help you build a strong, lasting identity and reach your digital potential.
+            </p>
+        </div>
     </section>
+    
     <section class="team-section">
         <h2 class="section-heading">Our Team</h2>
         <div class="team-grid">
             {% for member in team %}
                 <div class="team-member-card {% if member.is_ceo %}ceo-card{% endif %}">
-                    <!-- MODIFIED IMAGE TAG -->
                     <img data-src="/content/images/team/{{ member.image|replace('.jpg', '.webp')|replace('.jpeg', '.webp') }}" 
                          alt="Photo of {{ member.name }}" 
                          class="lazyload">
