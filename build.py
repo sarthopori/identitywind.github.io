@@ -17,6 +17,7 @@ ASSETS_DIR = os.path.join(SRC_DIR, 'assets')
 CONTENT_IMAGES_DIR = os.path.join(CONTENT_DIR, 'images')
 PORTFOLIO_IMAGES_DIR = os.path.join(CONTENT_IMAGES_DIR, 'portfolio')
 
+
 # --- Optimization Functions ---
 def optimize_images_to_webp(source_root, output_root):
     print("-> Optimizing and converting images to WebP...")
@@ -52,17 +53,24 @@ def minify_and_copy_assets(source_dir, output_dir):
 
 # --- Main Build Logic ---
 def load_site_data():
-    print("-> Loading all .json data...")
+    print("-> Loading all .json data from:", DATA_DIR)
     data = {}
     for filename in os.listdir(DATA_DIR):
         if filename.endswith('.json'):
             key = os.path.splitext(filename)[0]
-            with open(os.path.join(DATA_DIR, filename), 'r', encoding='utf-8') as f:
-                data[key] = json.load(f)
+            filepath = os.path.join(DATA_DIR, filename)
+            try:
+                with open(filepath, 'r', encoding='utf-8') as f:
+                    data[key] = json.load(f)
+                    print(f"  - Loaded '{filename}' successfully.")
+            except json.JSONDecodeError:
+                print(f"  - ERROR: Could not decode JSON from '{filename}'. File might be empty or malformed.")
+            except Exception as e:
+                print(f"  - ERROR: Could not read '{filename}': {e}")
     return data
 
 def build():
-    print("\n🚀 Starting SUPERCHARGED website build...")
+    print("\n>>> Starting SUPERCHARGED website build...")
     
     if os.path.exists(OUTPUT_DIR):
         shutil.rmtree(OUTPUT_DIR)
@@ -81,44 +89,43 @@ def build():
     print("-> Rendering main pages...")
     for filename in [f for f in os.listdir(TEMPLATES_DIR) if f.endswith('.html')]:
         template = env.get_template(filename)
+        context = site_data.copy()
+        context['active_page'] = os.path.splitext(filename)[0]
         with open(os.path.join(OUTPUT_DIR, filename), 'w', encoding='utf-8') as f:
-            # --- THIS IS THE CORRECTED LINE ---
-            # The **site_data unpacks the dictionary, making 'homepage', 'banners', etc., available
-            f.write(template.render(**site_data, active_page=os.path.splitext(filename)[0]))
+            f.write(template.render(context))
 
     print("-> Rendering portfolio pages...")
-    category_template = env.get_template('partials/portfolio_category.html')
-    for category in site_data.get('portfolio', []):
-        image_path = os.path.join(PORTFOLIO_IMAGES_DIR, category['folder'])
-        images = []
-        if os.path.exists(image_path):
-            images = [img for img in os.listdir(image_path) if img.lower().endswith(('.png', '.jpg', '.jpeg'))]
-        
-        # --- THIS IS THE CORRECTED PART ---
-        page_data = {**site_data, 'active_page': 'portfolio', 'category_name': category['label'], 'images': images, 'category_folder': category['folder']}
-        output_filename = f"portfolio-{category['folder']}.html"
-        with open(os.path.join(OUTPUT_DIR, output_filename), 'w', encoding='utf-8') as f:
-            f.write(category_template.render(**page_data))
+    if 'portfolio' in site_data:
+        category_template = env.get_template('partials/portfolio_category.html')
+        for category in site_data.get('portfolio', []):
+            image_path = os.path.join(PORTFOLIO_IMAGES_DIR, category['folder'])
+            images = [img for img in os.listdir(image_path) if img.lower().endswith(('.png', '.jpg', '.jpeg'))] if os.path.exists(image_path) else []
+            context = site_data.copy()
+            context.update({'active_page': 'portfolio', 'category_name': category['label'], 'images': images, 'category_folder': category['folder']})
+            output_filename = f"portfolio-{category['folder']}.html"
+            with open(os.path.join(OUTPUT_DIR, output_filename), 'w', encoding='utf-8') as f:
+                f.write(category_template.render(context))
     
     print("-> Rendering blog posts...")
-    blog_output_dir = os.path.join(OUTPUT_DIR, 'blog')
-    os.makedirs(blog_output_dir, exist_ok=True)
-    post_template = env.get_template('partials/post_detail.html')
-    for post in site_data.get('blog', []):
-        md_path = os.path.join(CONTENT_DIR, 'blog', f"{post['slug']}.md")
-        if os.path.exists(md_path):
-            with open(md_path, 'r', encoding='utf-8') as f:
-                html_content = markdown2.markdown(f.read())
-            
-            # --- THIS IS THE CORRECTED PART ---
-            page_data = {**site_data, 'active_page': 'blog', 'post': post, 'content': html_content}
-            output_filename = f"{post['slug']}.html"
-            with open(os.path.join(blog_output_dir, output_filename), 'w', encoding='utf-8') as f:
-                f.write(post_template.render(**page_data))
-        else:
-            print(f"  - WARNING: Markdown file not found for slug '{post['slug']}'")
+    if 'blog' in site_data:
+        blog_output_dir = os.path.join(OUTPUT_DIR, 'blog')
+        os.makedirs(blog_output_dir, exist_ok=True)
+        post_template = env.get_template('partials/post_detail.html')
+        for post in site_data.get('blog', []):
+            md_path = os.path.join(CONTENT_DIR, 'blog', f"{post['slug']}.md")
+            if os.path.exists(md_path):
+                with open(md_path, 'r', encoding='utf-8') as f:
+                    html_content = markdown2.markdown(f.read())
+                context = site_data.copy()
+                context.update({'active_page': 'blog', 'post': post, 'content': html_content})
+                output_filename = f"{post['slug']}.html"
+                with open(os.path.join(blog_output_dir, output_filename), 'w', encoding='utf-8') as f:
+                    f.write(post_template.render(context))
+            else:
+                print(f"  - WARNING: Markdown file not found for slug '{post['slug']}'")
 
-    print("✅ Build finished. Your website is now faster!")
+    # --- THIS IS THE CORRECTED LINE ---
+    print("\nBuild finished. Your website is now faster!")
 
 if __name__ == "__main__":
     build()
