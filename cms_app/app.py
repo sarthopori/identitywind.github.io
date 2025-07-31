@@ -27,21 +27,19 @@ PORTFOLIO_FILE = os.path.join(DATA_PATH, 'portfolio.json')
 BLOG_FILE = os.path.join(DATA_PATH, 'blog.json')
 CLIENTS_FILE = os.path.join(DATA_PATH, 'clients.json')
 NAVIGATION_FILE = os.path.join(DATA_PATH, 'navigation.json')
+STYLES_FILE = os.path.join(DATA_PATH, 'styles.json')
 
 # --- Image Upload Subfolders ---
-TEAM_UPLOAD_FOLDER = os.path.join(UPLOAD_FOLDER, 'team')
-BANNERS_UPLOAD_FOLDER = os.path.join(UPLOAD_FOLDER, 'banners')
-OFFERS_UPLOAD_FOLDER = os.path.join(UPLOAD_FOLDER, 'offers')
-PROJECTS_UPLOAD_FOLDER = os.path.join(UPLOAD_FOLDER, 'projects')
-BLOG_UPLOAD_FOLDER = os.path.join(UPLOAD_FOLDER, 'blog')
-PORTFOLIO_UPLOAD_FOLDER = os.path.join(UPLOAD_FOLDER, 'portfolio')
-CLIENTS_UPLOAD_FOLDER = os.path.join(UPLOAD_FOLDER, 'clients')
+TEAM_UPLOAD_FOLDER, BANNERS_UPLOAD_FOLDER, OFFERS_UPLOAD_FOLDER, PROJECTS_UPLOAD_FOLDER, BLOG_UPLOAD_FOLDER, PORTFOLIO_UPLOAD_FOLDER, CLIENTS_UPLOAD_FOLDER = [
+    os.path.join(UPLOAD_FOLDER, d) for d in 
+    ['team', 'banners', 'offers', 'projects', 'blog', 'portfolio', 'clients']
+]
 BLOG_CONTENT_DIR = os.path.join(CONTENT_DIR, 'blog')
 
 # --- Flask App Initialization ---
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.secret_key = 'your_one_true_secret_key'
+app.secret_key = 'your_final_working_secret_key'
 
 # --- Helper Functions ---
 def get_json_data(filepath):
@@ -66,16 +64,16 @@ def delete_image_file(image_filename, subfolder=""):
     except OSError as e: print(f"Error deleting file '{path}': {e}")
 
 # --- App Routes ---
-
 @app.route('/content/images/<path:filename>')
 def serve_content_image(filename): return send_from_directory(UPLOAD_FOLDER, filename)
 
 @app.route('/')
 def index(): return redirect(url_for('manage_navigation'))
 
-# --- NEW: Navigation ---
+# --- Navigation ---
 @app.route('/navigation', methods=['GET'])
-def manage_navigation(): return render_template('manage_navigation.html', navigation=get_json_data(NAVIGATION_FILE), active_page='navigation')
+def manage_navigation():
+    return render_template('manage_navigation.html', navigation=get_json_data(NAVIGATION_FILE), active_page='navigation', title="Manage Navigation")
 @app.route('/navigation/add', methods=['POST'])
 def add_nav_item():
     data = get_json_data(NAVIGATION_FILE); data.append({"label": request.form['label'], "url": request.form['url'], "id": request.form['id']}); save_json_data(NAVIGATION_FILE, data); flash('Item added!', 'success'); return redirect(url_for('manage_navigation'))
@@ -98,20 +96,28 @@ def move_nav_item(item_id, direction):
         save_json_data(NAVIGATION_FILE, data)
     return redirect(url_for('manage_navigation'))
 
-# --- ORIGINAL AND UPDATED ROUTES ---
+# --- Theme Settings ---
+@app.route('/theme_settings', methods=['GET', 'POST'])
+def edit_theme_settings():
+    if request.method == 'POST':
+        data = {"google_font_url": request.form['google_font_url'], "body_font_family": request.form['body_font_family'], "heading_font_family": request.form['heading_font_family'], "heading_font_size_px": int(request.form['heading_font_size_px'])}
+        save_json_data(STYLES_FILE, data); flash('Theme settings updated!', 'success'); return redirect(url_for('edit_theme_settings'))
+    return render_template('edit_theme_settings.html', data=get_json_data(STYLES_FILE), active_page='theme_settings', title="Theme Settings")
+
+# --- All Other Routes ---
 @app.route('/footer', methods=['GET', 'POST'])
 def edit_footer():
-    data = get_json_data(FOOTER_FILE)
     if request.method == 'POST':
-        data['email'] = request.form['email']; data['copyright_text'] = request.form['copyright_text']; data['social_links'] = []
+        data = {'email': request.form['email'], 'copyright_text': request.form['copyright_text'], 'social_links': []}
         names, urls = request.form.getlist('social_name'), request.form.getlist('social_url')
         for i in range(len(names)):
             if names[i] and urls[i]: data['social_links'].append({'name': names[i], 'url': urls[i]})
         save_json_data(FOOTER_FILE, data); flash('Footer updated!', 'success'); return redirect(url_for('edit_footer'))
-    return render_template('edit_footer.html', data=data, active_page='footer')
+    return render_template('edit_footer.html', data=get_json_data(FOOTER_FILE), active_page='footer', title="Edit Footer")
 
 @app.route('/testimonials')
-def manage_testimonials(): return render_template('manage_testimonials.html', testimonials=get_json_data(TESTIMONIALS_FILE), active_page='testimonials')
+def manage_testimonials(): return render_template('manage_testimonials.html', testimonials=get_json_data(TESTIMONIALS_FILE), active_page='testimonials', title="Manage Testimonials")
+# ... All Testimonial add/edit/delete routes are here ...
 @app.route('/testimonials/add', methods=['GET', 'POST'])
 def add_testimonial():
     if request.method == 'POST':
@@ -124,7 +130,7 @@ def add_testimonial():
 @app.route('/testimonials/edit/<int:item_id>', methods=['GET', 'POST'])
 def edit_testimonial(item_id):
     data = get_json_data(TESTIMONIALS_FILE)
-    if not 0 <= item_id < len(data): return redirect(url_for('manage_testimonials'))
+    if not 0 <= item_id < len(data): abort(404)
     item = data[item_id]
     if request.method == 'POST':
         if 'image' in request.files and request.files['image'].filename != '':
@@ -138,8 +144,9 @@ def delete_testimonial(item_id):
     if 0 <= item_id < len(data): delete_image_file(data[item_id].get('image'), 'team'); data.pop(item_id); save_json_data(TESTIMONIALS_FILE, data); flash('Testimonial deleted.', 'success')
     return redirect(url_for('manage_testimonials'))
 
+# ... All other routes from your original app.py are here and complete ...
 @app.route('/clients')
-def manage_clients(): return render_template('manage_clients.html', clients=get_json_data(CLIENTS_FILE), active_page='clients')
+def manage_clients(): return render_template('manage_clients.html', clients=get_json_data(CLIENTS_FILE), active_page='clients', title="Manage Clients")
 @app.route('/clients/add', methods=['GET', 'POST'])
 def add_client():
     if request.method == 'POST':
@@ -165,7 +172,7 @@ def delete_client(item_id):
     return redirect(url_for('manage_clients'))
 
 @app.route('/team')
-def manage_team(): return render_template('manage_team.html', team=get_json_data(TEAM_FILE), active_page='team')
+def manage_team(): return render_template('manage_team.html', team=get_json_data(TEAM_FILE), active_page='team', title="Manage Team")
 @app.route('/team/add', methods=['POST'])
 def add_team_member():
     data = get_json_data(TEAM_FILE); filename = ""
@@ -191,7 +198,7 @@ def delete_team_member(item_id):
     return redirect(url_for('manage_team'))
 
 @app.route('/banners')
-def manage_banners(): return render_template('manage_banners.html', banners=get_json_data(BANNERS_FILE), active_page='banners')
+def manage_banners(): return render_template('manage_banners.html', banners=get_json_data(BANNERS_FILE), active_page='banners', title="Manage Banners")
 @app.route('/banners/add', methods=['GET', 'POST'])
 def add_banner():
     if request.method == 'POST':
@@ -217,7 +224,7 @@ def delete_banner(item_id):
     return redirect(url_for('manage_banners'))
 
 @app.route('/offers')
-def manage_offers(): return render_template('manage_offers.html', offers=get_json_data(OFFERS_FILE), active_page='offers')
+def manage_offers(): return render_template('manage_offers.html', offers=get_json_data(OFFERS_FILE), active_page='offers', title="Manage Offers")
 @app.route('/offers/add', methods=['GET', 'POST'])
 def add_offer():
     if request.method == 'POST':
@@ -244,7 +251,7 @@ def delete_offer(item_id):
     return redirect(url_for('manage_offers'))
 
 @app.route('/projects')
-def manage_projects(): return render_template('manage_projects.html', projects=get_json_data(PROJECTS_FILE), active_page='projects')
+def manage_projects(): return render_template('manage_projects.html', projects=get_json_data(PROJECTS_FILE), active_page='projects', title="Manage Projects")
 @app.route('/projects/add', methods=['GET', 'POST'])
 def add_project():
     if request.method == 'POST':
@@ -271,7 +278,7 @@ def delete_project(item_id):
     return redirect(url_for('manage_projects'))
 
 @app.route('/videos')
-def manage_videos(): return render_template('manage_videos.html', videos=get_json_data(VIDEOS_FILE), active_page='videos')
+def manage_videos(): return render_template('manage_videos.html', videos=get_json_data(VIDEOS_FILE), active_page='videos', title="Manage Videos")
 @app.route('/videos/add', methods=['GET', 'POST'])
 def add_video():
     if request.method == 'POST':
@@ -300,7 +307,7 @@ def edit_about_page():
             delete_image_file(data.get('about_us_image')); image_file = request.files['about_us_image']; data['about_us_image'] = secure_filename(image_file.filename); image_file.save(os.path.join(UPLOAD_FOLDER, data['about_us_image']))
         data['about_us_heading'] = request.form['about_us_heading']; data['about_us_text'] = request.form['about_us_text']; data['who_we_are_heading'] = request.form['who_we_are_heading']; data['who_we_are_text'] = request.form['who_we_are_text']
         save_json_data(ABOUT_FILE, data); flash('About page updated!', 'success'); return redirect(url_for('edit_about_page'))
-    return render_template('edit_about_page.html', data=data, active_page='about_page')
+    return render_template('edit_about_page.html', data=data, active_page='about_page', title="Edit About Page")
 
 @app.route('/services_page', methods=['GET', 'POST'])
 def edit_services_page():
@@ -308,7 +315,7 @@ def edit_services_page():
     if request.method == 'POST':
         data['heading'] = request.form['heading']; data['services_list'] = [s.strip() for s in request.form['services_list'].split('\n') if s.strip()]
         save_json_data(SERVICES_FILE, data); flash('Services page updated!', 'success'); return redirect(url_for('edit_services_page'))
-    services_list_str = "\n".join(data.get('services_list', [])); return render_template('edit_services_page.html', data=data, services_list_str=services_list_str, active_page='services_page')
+    services_list_str = "\n".join(data.get('services_list', [])); return render_template('edit_services_page.html', data=data, services_list_str=services_list_str, active_page='services_page', title="Edit Services Page")
 
 @app.route('/contact_page', methods=['GET', 'POST'])
 def edit_contact_page():
@@ -320,11 +327,10 @@ def edit_contact_page():
         data['address']['label'] = request.form['address_label']; data['address']['line1'] = request.form['address_line1']; data['address']['line2'] = request.form['address_line2']
         data['business_hours']['label'] = request.form['business_hours_label']; data['business_hours']['days'] = request.form['business_hours_days']; data['business_hours']['hours'] = request.form['business_hours_hours']
         save_json_data(CONTACT_FILE, data); flash('Contact page updated!', 'success'); return redirect(url_for('edit_contact_page'))
-    return render_template('edit_contact_page.html', data=data, active_page='contact_page')
+    return render_template('edit_contact_page.html', data=data, active_page='contact_page', title="Edit Contact Page")
 
 @app.route('/blog_posts')
-def manage_blog_posts():
-    return render_template('manage_blog_posts.html', blog_posts=get_json_data(BLOG_FILE), active_page='blog_posts')
+def manage_blog_posts(): return render_template('manage_blog_posts.html', blog_posts=get_json_data(BLOG_FILE), active_page='blog_posts', title="Manage Blog Posts")
 @app.route('/blog_posts/add', methods=['GET', 'POST'])
 def add_blog_post():
     if request.method == 'POST':
@@ -370,8 +376,7 @@ def delete_blog_post(item_id):
     return redirect(url_for('manage_blog_posts'))
 
 @app.route('/portfolio_categories')
-def manage_portfolio_categories():
-    return render_template('manage_portfolio_categories.html', categories=get_json_data(PORTFOLIO_FILE), active_page='portfolio_categories')
+def manage_portfolio_categories(): return render_template('manage_portfolio_categories.html', categories=get_json_data(PORTFOLIO_FILE), active_page='portfolio_categories', title="Manage Portfolio")
 @app.route('/portfolio_categories/add', methods=['GET', 'POST'])
 def add_portfolio_category():
     if request.method == 'POST':
@@ -441,7 +446,7 @@ def deploy():
             output += f"\n\n❌ DEPLOYMENT FAILED! ❌\nCommand '{' '.join(e.cmd)}' failed.\n--- STDOUT ---\n{e.stdout}\n--- STDERR ---\n{e.stderr}"; flash('Deployment failed.', 'error')
         except Exception as e:
             output += f"\n\n❌ UNEXPECTED ERROR! ❌\n{e}"; flash('An unexpected error occurred.', 'error')
-    return render_template('deploy.html', output=output, active_page='deploy')
+    return render_template('deploy.html', output=output, active_page='deploy', title="Deploy Website")
 
 # --- Run App ---
 if __name__ == '__main__':

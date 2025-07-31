@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Theme Settings{% endblock %}
+
+{% block content %}
+<form method="POST">
+    <div class="card">
+        <div class="card-header">
+            <h2>Global Font and Style Settings</h2>
+        </div>
+        <div class="card-body">
+            <div class="form-group">
+                <label for="heading_font_family">Heading Font Family</label>
+                <input type="text" name="heading_font_family" value="{{ data.heading_font_family }}">
+                <small>CSS font-family value. e.g., 'Impact', sans-serif</small>
+            </div>
+            <div class="form-group">
+                <label for="heading_font_size_px">Heading Font Size (in pixels)</label>
+                <input type="number" name="heading_font_size_px" value="{{ data.heading_font_size_px }}">
+            </div>
+            <hr>
+            <div class="form-group">
+                <label for="body_font_family">Body Font Family</label>
+                <input type="text" name="body_font_family" value="{{ data.body_font_family }}">
+                <small>e.g., 'Open Sans', sans-serif</small>
+            </div>
+            <hr>
+            <div class="form-group">
+                <label for="google_font_url">Google Fonts URL</label>
+                <input type="url" name="google_font_url" value="{{ data.google_font_url }}">
+                <small>The full URL from Google Fonts to load the desired font families and weights.</small>
+            </div>
+        </div>
+        <div class="card-footer">
+            <button type="submit" class="btn btn-primary">Save Theme Settings</button>
+        </div>
+    </div>
+</form>
+{% endblock %}

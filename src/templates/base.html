@@ -4,8 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Identity Wind - {{ title }}</title>
+    
+    <!-- Styles loaded from styles.json -->
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="{{ styles.google_font_url }}" rel="stylesheet">
+    
+    <style>
+      :root {
+        --body-font: {{ styles.body_font_family }};
+        --heading-font: {{ styles.heading_font_family }};
+        --heading-font-size: {{ styles.heading_font_size_px }}px;
+      }
+    </style>
+    
     <link rel="stylesheet" href="/assets/css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
     <header>
