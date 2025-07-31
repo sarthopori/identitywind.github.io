@@ -8,7 +8,10 @@
             <p>{{ about.about_us_text }}</p>
         </div>
         <div class="about-image">
-            <img src="{{ base_url }}/content/images/{{ about.about_us_image }}" alt="About the company">
+            <!-- MODIFIED IMAGE TAG -->
+            <img data-src="/content/images/{{ about.about_us_image|replace('.jpg', '.webp')|replace('.jpeg', '.webp') }}" 
+                 alt="About the company" 
+                 class="lazyload">
         </div>
     </section>
     <section class="who-we-are">
@@ -20,7 +23,10 @@
         <div class="team-grid">
             {% for member in team %}
                 <div class="team-member-card {% if member.is_ceo %}ceo-card{% endif %}">
-                    <img src="{{ base_url }}/content/images/team/{{ member.image }}" alt="Photo of {{ member.name }}">
+                    <!-- MODIFIED IMAGE TAG -->
+                    <img data-src="/content/images/team/{{ member.image|replace('.jpg', '.webp')|replace('.jpeg', '.webp') }}" 
+                         alt="Photo of {{ member.name }}" 
+                         class="lazyload">
                     <div class="member-info">
                         <h3>{{ member.name }}</h3>
                         <p class="member-title">{{ member.title }}</p>

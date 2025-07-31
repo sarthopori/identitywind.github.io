@@ -5,18 +5,14 @@
     <!-- Section: Promotional Banner -->
     <section class="promotional-banner">
         <div class="slider">
-            {# This 'if' statement makes our template safer #}
             {% if banners %} 
-                {% for banner in banners %} {# Loop variable 'banner' is good for accessing banner.image #}
+                {% for banner in banners %}
                 <div class="slide">
-                    {# Reverted to img tag and accessing banner.image from the JSON data #}
-                    <img src="/content/images/banners/{{ banner.image }}" alt="Promotional Banner">
+                    <img data-src="/content/images/banners/{{ banner.image|replace('.jpg', '.webp') }}" alt="Promotional Banner" class="lazyload">
                 </div>
                 {% endfor %}
             {% endif %}
         </div>
-        
-        {# Check the length of the banners list before showing buttons #}
         {% if banners and banners|length > 1 %}
         <button class="slider-prev"><</button>
         <button class="slider-next">></button>
@@ -25,110 +21,81 @@
 
     <!-- Section: Offer -->
     <section class="offer-section">
-        <h2 class="section-heading">Experience the Future of Design</h2>
+        <h2 class="section-heading">{{ homepage.offer_section_heading }}</h2>
         <div class="card-container">
             {% for offer in offers %}
             <a href="/{{ offer.url }}" class="offer-card">
-                <img src="/content/images/offers/{{ offer.image }}" alt="{{ offer.title }}">
-                <div class="card-overlay">
-                    <span class="card-title">{{ offer.title }}</span>
-                </div>
+                <img data-src="/content/images/offers/{{ offer.image|replace('.jpg', '.webp') }}" alt="{{ offer.title }}" class="lazyload">
+                <div class="card-overlay"><span class="card-title">{{ offer.title }}</span></div>
             </a>
             {% endfor %}
         </div>
-        <div class="more-button-container">
-            <a href="/offers-archive.html" class="more-button">More</a>
-        </div>
+        <div class="more-button-container"><a href="/offers-archive.html" class="more-button">More</a></div>
     </section>
 
     <!-- Section: Project -->
     <section class="project-section">
-        <h2 class="section-heading">Recent Projects We Have Done</h2>
+        <h2 class="section-heading">{{ homepage.project_section_heading }}</h2>
         <div class="card-container">
             {% for project in projects %}
             <a href="/{{ project.url }}" class="offer-card">
-                <img src="/content/images/projects/{{ project.image }}" alt="{{ project.title }}">
-                <div class="card-overlay">
-                    <span class="card-title">{{ project.title }}</span>
-                </div>
+                <img data-src="/content/images/projects/{{ project.image|replace('.jpg', '.webp') }}" alt="{{ project.title }}" class="lazyload">
+                <div class="card-overlay"><span class="card-title">{{ project.title }}</span></div>
             </a>
             {% endfor %}
         </div>
-        <div class="more-button-container">
-            <a href="/projects-archive.html" class="more-button">More</a>
-        </div>
+        <div class="more-button-container"><a href="/projects-archive.html" class="more-button">More</a></div>
     </section>
 
     <!-- Section: Video -->
     <section class="video-section">
-        <h2 class="section-heading">Video Tutorial/Class</h2>
+        <h2 class="section-heading">{{ homepage.video_section_heading }}</h2>
         <div class="card-container">
             {% for video in videos %}
             <div class="video-card" data-video-id="{{ video.youtube_id }}">
-                <img class="video-thumbnail" src="https://img.youtube.com/vi/{{ video.youtube_id }}/hqdefault.jpg" alt="{{ video.title }}">
+                <img class="video-thumbnail lazyload" data-src="https://img.youtube.com/vi/{{ video.youtube_id }}/hqdefault.jpg" alt="{{ video.title }}">
                 <div class="play-icon">►</div>
                 <p class="video-title">{{ video.title }}</p>
             </div>
             {% endfor %}
         </div>
-        <div class="more-button-container">
-            <a href="/videos-archive.html" class="more-button">More</a>
+        <div class="more-button-container"><a href="/videos-archive.html" class="more-button">More</a></div>
+    </section>
+
+    <!-- Section: Testimonial -->
+    <section class="testimonial-section">
+        <h2 class="section-heading">{{ homepage.testimonial_section_heading }}</h2>
+        <div class="card-container"> 
+            {% for testimonial in testimonials %}
+            <div class="testimonial-card">
+                <div class="testimonial-stars">{% for i in range(testimonial.stars) %}★{% endfor %}</div>
+                <p class="testimonial-feedback">"{{ testimonial.feedback }}"</p>
+                <div class="testimonial-client-info">
+                    <img data-src="/content/images/team/{{ testimonial.image|replace('.jpg', '.webp') }}" alt="Photo of {{ testimonial.client_name }}" class="lazyload">
+                    <div class="testimonial-client-details">
+                        <p class="testimonial-client-name">{{ testimonial.client_name }}</p>
+                        <p class="testimonial-client-company">{{ testimonial.client_company }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
         </div>
     </section>
 
-  <!-- Section: Testimonial -->
-<section class="testimonial-section">
-    <h2 class="section-heading">What Our Clients Say</h2>
-    {# We re-use the .card-container to get a nice grid layout for testimonials #}
-    <div class="card-container"> 
-        {% for testimonial in testimonials %}
-        <div class="testimonial-card">
-            <div class="testimonial-stars">
-                {# This loop generates the star characters based on the number in your data file #}
-                {% for i in range(testimonial.stars) %}★{% endfor %}
-            </div>
-            <p class="testimonial-feedback">"{{ testimonial.feedback }}"</p>
-            <div class="testimonial-client-info">
-                {# Note: For consistency, client images should be placed in the team images folder #}
-                <img src="/content/images/team/{{ testimonial.image }}" alt="Photo of {{ testimonial.client_name }}">
-                <div class="testimonial-client-details">
-                    <p class="testimonial-client-name">{{ testimonial.client_name }}</p>
-                    <p class="testimonial-client-company">{{ testimonial.client_company }}</p>
+    <!-- Section: Our Valued Clients -->
+    <section class="client-logo-section">
+        <h2 class="section-heading">{{ homepage.clients_section_heading }}</h2>
+        {% if clients and clients|length > 0 %}
+        <div class="logo-slider-container">
+            <div class="logo-slider">
+                <div class="logo-slider-track">
+                    {% for client in clients %}<div class="logo-slide"><a href="{{ client.url }}" target="_blank" rel="noopener noreferrer"><img data-src="/content/images/clients/{{ client.logo|replace('.png', '.webp') }}" alt="Client Logo" class="lazyload"></a></div>{% endfor %}
+                    {% for client in clients %}<div class="logo-slide"><a href="{{ client.url }}" target="_blank" rel="noopener noreferrer"><img data-src="/content/images/clients/{{ client.logo|replace('.png', '.webp') }}" alt="Client Logo" class="lazyload"></a></div>{% endfor %}
                 </div>
             </div>
+            <button class="logo-slider-prev"><</button>
+            <button class="logo-slider-next">></button>
         </div>
-        {% endfor %}
-    </div>
-</section>
-
-<!-- Section: Our Valued Clients -->
-<section class="client-logo-section">
-    <h2 class="section-heading">Our Valued Clients</h2>
-    {# This checks if you have any clients in your clients.json before rendering #}
-    {% if clients and clients|length > 0 %}
-    <div class="logo-slider-container">
-        <div class="logo-slider">
-            <div class="logo-slider-track">
-                {# This loops through your clients twice to create a seamless "infinite" scroll effect #}
-                {% for client in clients %}
-                <div class="logo-slide">
-                    <a href="{{ client.url }}" target="_blank" rel="noopener noreferrer">
-                        <img src="/content/images/clients/{{ client.logo }}" alt="Client Logo">
-                    </a>
-                </div>
-                {% endfor %}
-                {% for client in clients %}
-                <div class="logo-slide">
-                    <a href="{{ client.url }}" target="_blank" rel="noopener noreferrer">
-                        <img src="/content/images/clients/{{ client.logo }}" alt="Client Logo">
-                    </a>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-        <button class="logo-slider-prev"><</button>
-        <button class="logo-slider-next">></button>
-    </div>
-    {% endif %}
-</section>
+        {% endif %}
+    </section>
 {% endblock %}

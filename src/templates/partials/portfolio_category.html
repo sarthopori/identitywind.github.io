@@ -7,7 +7,10 @@
     <div class="portfolio-image-grid">
         {% for image in images %}
         <div class="portfolio-image-item">
-            <img src="/content/images/portfolio/{{ category_folder }}/{{ image }}" alt="{{ category_name }} work">
+            <!-- MODIFIED IMAGE TAG -->
+            <img data-src="/content/images/portfolio/{{ category_folder }}/{{ image|replace('.jpg', '.webp')|replace('.jpeg', '.webp')|replace('.png', '.webp') }}" 
+                 alt="{{ category_name }} work"
+                 class="lazyload">
         </div>
         {% endfor %}
     </div>

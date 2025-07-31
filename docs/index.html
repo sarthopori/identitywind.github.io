@@ -5,10 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Identity Wind - Home</title>
     
-    <!-- Styles loaded from styles.json -->
+    <!-- Font Optimization: Preconnect to Google Fonts servers -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- Font Optimization: Load fonts asynchronously with display=swap -->
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&amp;family=Impact&amp;display=swap" rel="stylesheet">
     
+    <!-- Dynamic styles from CMS -->
     <style>
       :root {
         --body-font: &#39;Open Sans&#39;, sans-serif;
@@ -50,28 +54,22 @@
     <!-- Section: Promotional Banner -->
     <section class="promotional-banner">
         <div class="slider">
-            
              
-                 
+                
                 <div class="slide">
-                    
-                    <img src="/content/images/banners/banner-1.jpg" alt="Promotional Banner">
+                    <img data-src="/content/images/banners/banner-1.webp" alt="Promotional Banner" class="lazyload">
                 </div>
-                 
+                
                 <div class="slide">
-                    
-                    <img src="/content/images/banners/banner-2.jpg" alt="Promotional Banner">
+                    <img data-src="/content/images/banners/banner-2.webp" alt="Promotional Banner" class="lazyload">
                 </div>
-                 
+                
                 <div class="slide">
-                    
-                    <img src="/content/images/banners/images.jpg" alt="Promotional Banner">
+                    <img data-src="/content/images/banners/images.webp" alt="Promotional Banner" class="lazyload">
                 </div>
                 
             
         </div>
-        
-        
         
         <button class="slider-prev"><</button>
         <button class="slider-next">></button>
@@ -84,30 +82,22 @@
         <div class="card-container">
             
             <a href="/offer-detail-logo.html" class="offer-card">
-                <img src="/content/images/offers/offer1.jpg" alt="Modern Logo Design">
-                <div class="card-overlay">
-                    <span class="card-title">Modern Logo Design</span>
-                </div>
+                <img data-src="/content/images/offers/offer1.webp" alt="Modern Logo Design" class="lazyload">
+                <div class="card-overlay"><span class="card-title">Modern Logo Design</span></div>
             </a>
             
             <a href="/offer-detail-banners.html" class="offer-card">
-                <img src="/content/images/offers/offer2.jpg" alt="Engaging Web Banners">
-                <div class="card-overlay">
-                    <span class="card-title">Engaging Web Banners</span>
-                </div>
+                <img data-src="/content/images/offers/offer2.webp" alt="Engaging Web Banners" class="lazyload">
+                <div class="card-overlay"><span class="card-title">Engaging Web Banners</span></div>
             </a>
             
             <a href="/offer-detail-social.html" class="offer-card">
-                <img src="/content/images/offers/offer3.jpg" alt="Complete Social Media Kit">
-                <div class="card-overlay">
-                    <span class="card-title">Complete Social Media Kit</span>
-                </div>
+                <img data-src="/content/images/offers/offer3.webp" alt="Complete Social Media Kit" class="lazyload">
+                <div class="card-overlay"><span class="card-title">Complete Social Media Kit</span></div>
             </a>
             
         </div>
-        <div class="more-button-container">
-            <a href="/offers-archive.html" class="more-button">More</a>
-        </div>
+        <div class="more-button-container"><a href="/offers-archive.html" class="more-button">More</a></div>
     </section>
 
     <!-- Section: Project -->
@@ -116,30 +106,22 @@
         <div class="card-container">
             
             <a href="/project-detail-alpha.html" class="offer-card">
-                <img src="/content/images/projects/project1.jpg" alt="Corporate Rebranding for Alpha Inc.">
-                <div class="card-overlay">
-                    <span class="card-title">Corporate Rebranding for Alpha Inc.</span>
-                </div>
+                <img data-src="/content/images/projects/project1.webp" alt="Corporate Rebranding for Alpha Inc." class="lazyload">
+                <div class="card-overlay"><span class="card-title">Corporate Rebranding for Alpha Inc.</span></div>
             </a>
             
             <a href="/project-detail-beta.html" class="offer-card">
-                <img src="/content/images/projects/project2.jpg" alt="E-commerce Website for Beta Store">
-                <div class="card-overlay">
-                    <span class="card-title">E-commerce Website for Beta Store</span>
-                </div>
+                <img data-src="/content/images/projects/project2.webp" alt="E-commerce Website for Beta Store" class="lazyload">
+                <div class="card-overlay"><span class="card-title">E-commerce Website for Beta Store</span></div>
             </a>
             
             <a href="/project-detail-gamma.html" class="offer-card">
-                <img src="/content/images/projects/project3.jpg" alt="Marketing Campaign for Gamma">
-                <div class="card-overlay">
-                    <span class="card-title">Marketing Campaign for Gamma</span>
-                </div>
+                <img data-src="/content/images/projects/project3.webp" alt="Marketing Campaign for Gamma" class="lazyload">
+                <div class="card-overlay"><span class="card-title">Marketing Campaign for Gamma</span></div>
             </a>
             
         </div>
-        <div class="more-button-container">
-            <a href="/projects-archive.html" class="more-button">More</a>
-        </div>
+        <div class="more-button-container"><a href="/projects-archive.html" class="more-button">More</a></div>
     </section>
 
     <!-- Section: Video -->
@@ -148,148 +130,75 @@
         <div class="card-container">
             
             <div class="video-card" data-video-id="NiGZKrdSZkM">
-                <img class="video-thumbnail" src="https://img.youtube.com/vi/NiGZKrdSZkM/hqdefault.jpg" alt="Introduction to Graphic Design">
+                <img class="video-thumbnail lazyload" data-src="https://img.youtube.com/vi/NiGZKrdSZkM/hqdefault.jpg" alt="Introduction to Graphic Design">
                 <div class="play-icon">►</div>
                 <p class="video-title">Introduction to Graphic Design</p>
             </div>
             
             <div class="video-card" data-video-id="2x47FMsnMUw">
-                <img class="video-thumbnail" src="https://img.youtube.com/vi/2x47FMsnMUw/hqdefault.jpg" alt="Mastering Color Theory">
+                <img class="video-thumbnail lazyload" data-src="https://img.youtube.com/vi/2x47FMsnMUw/hqdefault.jpg" alt="Mastering Color Theory">
                 <div class="play-icon">►</div>
                 <p class="video-title">Mastering Color Theory</p>
             </div>
             
             <div class="video-card" data-video-id="sByzHoiYFX0">
-                <img class="video-thumbnail" src="https://img.youtube.com/vi/sByzHoiYFX0/hqdefault.jpg" alt="Typography Basics in 10 Minutes">
+                <img class="video-thumbnail lazyload" data-src="https://img.youtube.com/vi/sByzHoiYFX0/hqdefault.jpg" alt="Typography Basics in 10 Minutes">
                 <div class="play-icon">►</div>
                 <p class="video-title">Typography Basics in 10 Minutes</p>
             </div>
             
         </div>
-        <div class="more-button-container">
-            <a href="/videos-archive.html" class="more-button">More</a>
+        <div class="more-button-container"><a href="/videos-archive.html" class="more-button">More</a></div>
+    </section>
+
+    <!-- Section: Testimonial -->
+    <section class="testimonial-section">
+        <h2 class="section-heading">What Our Clients Say</h2>
+        <div class="card-container"> 
+            
+            <div class="testimonial-card">
+                <div class="testimonial-stars">★★★★★</div>
+                <p class="testimonial-feedback">"Working with Identity Wind was a game-changer. Their design sense is impeccable and the process was incredibly smooth. They delivered a brand identity that exceeded all our expectations."</p>
+                <div class="testimonial-client-info">
+                    <img data-src="/content/images/team/client-jane-doe.webp" alt="Photo of Jane Doe" class="lazyload">
+                    <div class="testimonial-client-details">
+                        <p class="testimonial-client-name">Jane Doe</p>
+                        <p class="testimonial-client-company">CEO of TechLand</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="testimonial-card">
+                <div class="testimonial-stars">★★★★★</div>
+                <p class="testimonial-feedback">"Their team is not only talented but also incredibly responsive. They took our initial concept and transformed it into a stunning reality. We couldn&#39;t be happier with the results."</p>
+                <div class="testimonial-client-info">
+                    <img data-src="/content/images/team/client-john-smith.webp" alt="Photo of John Smith" class="lazyload">
+                    <div class="testimonial-client-details">
+                        <p class="testimonial-client-name">John Smith</p>
+                        <p class="testimonial-client-company">Marketing Director, Innovate Co.</p>
+                    </div>
+                </div>
+            </div>
+            
         </div>
     </section>
 
-  <!-- Section: Testimonial -->
-<section class="testimonial-section">
-    <h2 class="section-heading">What Our Clients Say</h2>
-    
-    <div class="card-container"> 
+    <!-- Section: Our Valued Clients -->
+    <section class="client-logo-section">
+        <h2 class="section-heading">Our Valued Clients</h2>
         
-        <div class="testimonial-card">
-            <div class="testimonial-stars">
-                
-                ★★★★★
-            </div>
-            <p class="testimonial-feedback">"Working with Identity Wind was a game-changer. Their design sense is impeccable and the process was incredibly smooth. They delivered a brand identity that exceeded all our expectations."</p>
-            <div class="testimonial-client-info">
-                
-                <img src="/content/images/team/client-jane-doe.jpg" alt="Photo of Jane Doe">
-                <div class="testimonial-client-details">
-                    <p class="testimonial-client-name">Jane Doe</p>
-                    <p class="testimonial-client-company">CEO of TechLand</p>
+        <div class="logo-slider-container">
+            <div class="logo-slider">
+                <div class="logo-slider-track">
+                    <div class="logo-slide"><a href="https://www.example.com" target="_blank" rel="noopener noreferrer"><img data-src="/content/images/clients/logo-placeholder-1.webp" alt="Client Logo" class="lazyload"></a></div><div class="logo-slide"><a href="https://www.example.com" target="_blank" rel="noopener noreferrer"><img data-src="/content/images/clients/logo-placeholder-2.webp" alt="Client Logo" class="lazyload"></a></div><div class="logo-slide"><a href="https://www.example.com" target="_blank" rel="noopener noreferrer"><img data-src="/content/images/clients/logo-placeholder-3.webp" alt="Client Logo" class="lazyload"></a></div><div class="logo-slide"><a href="https://www.example.com" target="_blank" rel="noopener noreferrer"><img data-src="/content/images/clients/logo-placeholder-4.webp" alt="Client Logo" class="lazyload"></a></div><div class="logo-slide"><a href="https://www.example.com" target="_blank" rel="noopener noreferrer"><img data-src="/content/images/clients/logo-placeholder-5.webp" alt="Client Logo" class="lazyload"></a></div>
+                    <div class="logo-slide"><a href="https://www.example.com" target="_blank" rel="noopener noreferrer"><img data-src="/content/images/clients/logo-placeholder-1.webp" alt="Client Logo" class="lazyload"></a></div><div class="logo-slide"><a href="https://www.example.com" target="_blank" rel="noopener noreferrer"><img data-src="/content/images/clients/logo-placeholder-2.webp" alt="Client Logo" class="lazyload"></a></div><div class="logo-slide"><a href="https://www.example.com" target="_blank" rel="noopener noreferrer"><img data-src="/content/images/clients/logo-placeholder-3.webp" alt="Client Logo" class="lazyload"></a></div><div class="logo-slide"><a href="https://www.example.com" target="_blank" rel="noopener noreferrer"><img data-src="/content/images/clients/logo-placeholder-4.webp" alt="Client Logo" class="lazyload"></a></div><div class="logo-slide"><a href="https://www.example.com" target="_blank" rel="noopener noreferrer"><img data-src="/content/images/clients/logo-placeholder-5.webp" alt="Client Logo" class="lazyload"></a></div>
                 </div>
             </div>
+            <button class="logo-slider-prev"><</button>
+            <button class="logo-slider-next">></button>
         </div>
         
-        <div class="testimonial-card">
-            <div class="testimonial-stars">
-                
-                ★★★★★
-            </div>
-            <p class="testimonial-feedback">"Their team is not only talented but also incredibly responsive. They took our initial concept and transformed it into a stunning reality. We couldn&#39;t be happier with the results."</p>
-            <div class="testimonial-client-info">
-                
-                <img src="/content/images/team/client-john-smith.jpg" alt="Photo of John Smith">
-                <div class="testimonial-client-details">
-                    <p class="testimonial-client-name">John Smith</p>
-                    <p class="testimonial-client-company">Marketing Director, Innovate Co.</p>
-                </div>
-            </div>
-        </div>
-        
-    </div>
-</section>
-
-<!-- Section: Our Valued Clients -->
-<section class="client-logo-section">
-    <h2 class="section-heading">Our Valued Clients</h2>
-    
-    
-    <div class="logo-slider-container">
-        <div class="logo-slider">
-            <div class="logo-slider-track">
-                
-                
-                <div class="logo-slide">
-                    <a href="https://www.example.com" target="_blank" rel="noopener noreferrer">
-                        <img src="/content/images/clients/logo-placeholder-1.png" alt="Client Logo">
-                    </a>
-                </div>
-                
-                <div class="logo-slide">
-                    <a href="https://www.example.com" target="_blank" rel="noopener noreferrer">
-                        <img src="/content/images/clients/logo-placeholder-2.png" alt="Client Logo">
-                    </a>
-                </div>
-                
-                <div class="logo-slide">
-                    <a href="https://www.example.com" target="_blank" rel="noopener noreferrer">
-                        <img src="/content/images/clients/logo-placeholder-3.png" alt="Client Logo">
-                    </a>
-                </div>
-                
-                <div class="logo-slide">
-                    <a href="https://www.example.com" target="_blank" rel="noopener noreferrer">
-                        <img src="/content/images/clients/logo-placeholder-4.png" alt="Client Logo">
-                    </a>
-                </div>
-                
-                <div class="logo-slide">
-                    <a href="https://www.example.com" target="_blank" rel="noopener noreferrer">
-                        <img src="/content/images/clients/logo-placeholder-5.png" alt="Client Logo">
-                    </a>
-                </div>
-                
-                
-                <div class="logo-slide">
-                    <a href="https://www.example.com" target="_blank" rel="noopener noreferrer">
-                        <img src="/content/images/clients/logo-placeholder-1.png" alt="Client Logo">
-                    </a>
-                </div>
-                
-                <div class="logo-slide">
-                    <a href="https://www.example.com" target="_blank" rel="noopener noreferrer">
-                        <img src="/content/images/clients/logo-placeholder-2.png" alt="Client Logo">
-                    </a>
-                </div>
-                
-                <div class="logo-slide">
-                    <a href="https://www.example.com" target="_blank" rel="noopener noreferrer">
-                        <img src="/content/images/clients/logo-placeholder-3.png" alt="Client Logo">
-                    </a>
-                </div>
-                
-                <div class="logo-slide">
-                    <a href="https://www.example.com" target="_blank" rel="noopener noreferrer">
-                        <img src="/content/images/clients/logo-placeholder-4.png" alt="Client Logo">
-                    </a>
-                </div>
-                
-                <div class="logo-slide">
-                    <a href="https://www.example.com" target="_blank" rel="noopener noreferrer">
-                        <img src="/content/images/clients/logo-placeholder-5.png" alt="Client Logo">
-                    </a>
-                </div>
-                
-            </div>
-        </div>
-        <button class="logo-slider-prev"><</button>
-        <button class="logo-slider-next">></button>
-    </div>
-    
-</section>
+    </section>
 
     </main>
     <footer>
@@ -310,9 +219,15 @@
 
 <p>© 2025 Identity Wind. All Rights Reserved.</p>
     </footer>
-    <script src="/assets/js/slider.js"></script>
-    <script src="/assets/js/video-player.js"></script>
-    <script src="/assets/js/logo-slider.js"></script>
+
+    <!-- Scripts are DEFERRED to prevent render-blocking -->
+    <script src="/assets/js/slider.js" defer></script>
+    <script src="/assets/js/video-player.js" defer></script>
+    <script src="/assets/js/logo-slider.js" defer></script>
+    
+    <!-- Lazy Loading Library (async so it doesn't block) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lazysizes/5.3.2/lazysizes.min.js" integrity="sha512-q583ppKrCRc7N5O0n2nzUiJ+suUv7Et1JGels4bXOaMFQcamPk9HjdUknZuuFjBNs7tsMuadge5k9RzdmO+1GQ==" crossorigin="anonymous" referrerpolicy="no-referrer" async></script>
+    
     <div id="video-modal" class="modal-overlay">
         <div class="modal-content">
             <span class="close-modal">×</span>

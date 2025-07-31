@@ -8,7 +8,10 @@
         {% for post in blog %}
         <a href="/blog/{{ post.slug }}.html" class="blog-post-card">
             <div class="blog-card-image">
-                <img src="/content/images/blog/{{ post.image }}" alt="{{ post.title }}">
+                <!-- MODIFIED IMAGE TAG -->
+                <img data-src="/content/images/blog/{{ post.image|replace('.jpg', '.webp')|replace('.jpeg', '.webp') }}" 
+                     alt="{{ post.title }}" 
+                     class="lazyload">
             </div>
             <div class="blog-card-content">
                 <h3>{{ post.title }}</h3>

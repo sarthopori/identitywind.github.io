@@ -8,7 +8,10 @@
         <p class="post-meta">By {{ post.author }} on {{ post.date }}</p>
     </header>
     <div class="post-featured-image">
-        <img src="/content/images/blog/{{ post.image }}" alt="{{ post.title }}">
+        <!-- MODIFIED IMAGE TAG -->
+        <img data-src="/content/images/blog/{{ post.image|replace('.jpg', '.webp')|replace('.jpeg', '.webp') }}" 
+             alt="{{ post.title }}"
+             class="lazyload">
     </div>
     <div class="post-content">
         {{ content|safe }}

@@ -5,10 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Identity Wind - Services</title>
     
-    <!-- Styles loaded from styles.json -->
+    <!-- Font Optimization: Preconnect to Google Fonts servers -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- Font Optimization: Load fonts asynchronously with display=swap -->
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&amp;family=Impact&amp;display=swap" rel="stylesheet">
     
+    <!-- Dynamic styles from CMS -->
     <style>
       :root {
         --body-font: &#39;Open Sans&#39;, sans-serif;
@@ -137,9 +141,15 @@
 
 <p>© 2025 Identity Wind. All Rights Reserved.</p>
     </footer>
-    <script src="/assets/js/slider.js"></script>
-    <script src="/assets/js/video-player.js"></script>
-    <script src="/assets/js/logo-slider.js"></script>
+
+    <!-- Scripts are DEFERRED to prevent render-blocking -->
+    <script src="/assets/js/slider.js" defer></script>
+    <script src="/assets/js/video-player.js" defer></script>
+    <script src="/assets/js/logo-slider.js" defer></script>
+    
+    <!-- Lazy Loading Library (async so it doesn't block) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lazysizes/5.3.2/lazysizes.min.js" integrity="sha512-q583ppKrCRc7N5O0n2nzUiJ+suUv7Et1JGels4bXOaMFQcamPk9HjdUknZuuFjBNs7tsMuadge5k9RzdmO+1GQ==" crossorigin="anonymous" referrerpolicy="no-referrer" async></script>
+    
     <div id="video-modal" class="modal-overlay">
         <div class="modal-content">
             <span class="close-modal">×</span>

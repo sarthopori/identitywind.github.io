@@ -7,7 +7,10 @@
     <div class="portfolio-grid">
         {% for category in portfolio %}
         <a href="/portfolio-{{ category.folder }}.html" class="portfolio-category-card">
-            <img src="/content/images/portfolio/{{ category.image }}" alt="Preview for {{ category.label }} category">
+            <!-- MODIFIED IMAGE TAG -->
+            <img data-src="/content/images/portfolio/{{ category.image|replace('.jpg', '.webp')|replace('.jpeg', '.webp')|replace('.png', '.webp') }}" 
+                 alt="Preview for {{ category.label }} category"
+                 class="lazyload">
             <div class="card-overlay">
                 <span class="card-title">{{ category.label }}</span>
             </div>

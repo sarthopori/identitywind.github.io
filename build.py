@@ -3,121 +3,122 @@ import shutil
 import json
 import markdown2
 from jinja2 import Environment, FileSystemLoader
+from PIL import Image
+import csscompressor
+import jsmin
 
 # --- Configuration ---
 SRC_DIR = 'src'
+OUTPUT_DIR = 'docs'
 TEMPLATES_DIR = os.path.join(SRC_DIR, 'templates')
 DATA_DIR = os.path.join(SRC_DIR, 'data')
 CONTENT_DIR = os.path.join(SRC_DIR, 'content')
-OUTPUT_DIR = 'docs'
+ASSETS_DIR = os.path.join(SRC_DIR, 'assets')
 CONTENT_IMAGES_DIR = os.path.join(CONTENT_DIR, 'images')
-BANNERS_DIR = os.path.join(CONTENT_IMAGES_DIR, 'banners') # This variable is no longer used for logic but is fine to keep
 PORTFOLIO_IMAGES_DIR = os.path.join(CONTENT_IMAGES_DIR, 'portfolio')
 
-def setup_project_directories():
-    """Creates all necessary source folders if they don't exist."""
-    print("Verifying project structure...")
-    required_dirs = [
-        TEMPLATES_DIR, os.path.join(TEMPLATES_DIR, 'partials'), DATA_DIR,
-        os.path.join(SRC_DIR, 'assets', 'img'), CONTENT_IMAGES_DIR,
-        BANNERS_DIR, os.path.join(CONTENT_IMAGES_DIR, 'offers'),
-        os.path.join(CONTENT_IMAGES_DIR, 'projects'), os.path.join(CONTENT_IMAGES_DIR, 'team'),
-        PORTFOLIO_IMAGES_DIR, os.path.join(CONTENT_IMAGES_DIR, 'blog'),
-        os.path.join(CONTENT_DIR, 'blog')
-    ]
-    portfolio_data_path = os.path.join(DATA_DIR, 'portfolio.json')
-    if os.path.exists(portfolio_data_path):
-        with open(portfolio_data_path, 'r', encoding='utf-8') as f:
-            p_data = json.load(f)
-            for cat in p_data: required_dirs.append(os.path.join(PORTFOLIO_IMAGES_DIR, cat['folder']))
-    for path in required_dirs:
-        if not os.path.exists(path):
-            print(f"Directory not found. Creating: {path}")
-            os.makedirs(path)
+# --- Optimization Functions ---
+def optimize_images_to_webp(source_root, output_root):
+    print("-> Optimizing and converting images to WebP...")
+    for dirpath, _, filenames in os.walk(source_root):
+        for filename in filenames:
+            if filename.lower().endswith(('.png', '.jpg', '.jpeg')):
+                source_path = os.path.join(dirpath, filename)
+                relative_path = os.path.relpath(source_path, source_root)
+                output_path = os.path.join(output_root, os.path.splitext(relative_path)[0] + '.webp')
+                os.makedirs(os.path.dirname(output_path), exist_ok=True)
+                try:
+                    with Image.open(source_path) as img:
+                        img.save(output_path, 'webp', quality=80)
+                except Exception as e:
+                    print(f"  - Could not convert {filename}: {e}")
 
+def minify_and_copy_assets(source_dir, output_dir):
+    print("-> Minifying and copying assets...")
+    os.makedirs(output_dir, exist_ok=True)
+    for item in os.listdir(source_dir):
+        source_item = os.path.join(source_dir, item)
+        output_item = os.path.join(output_dir, item)
+        if os.path.isdir(source_item):
+            minify_and_copy_assets(source_item, output_item)
+        elif item.endswith('.css'):
+            with open(source_item, 'r', encoding='utf-8') as f_in, open(output_item, 'w', encoding='utf-8') as f_out:
+                f_out.write(csscompressor.compress(f_in.read()))
+        elif item.endswith('.js'):
+            with open(source_item, 'r', encoding='utf-8') as f_in, open(output_item, 'w', encoding='utf-8') as f_out:
+                f_out.write(jsmin.jsmin(f_in.read()))
+        else:
+            shutil.copy2(source_item, output_item)
+
+# --- Main Build Logic ---
 def load_site_data():
-    """Loads all JSON files from the data directory."""
-    print("Loading content data...")
+    print("-> Loading all .json data...")
     data = {}
     for filename in os.listdir(DATA_DIR):
         if filename.endswith('.json'):
-            key = filename.split('.')[0]
-            path = os.path.join(DATA_DIR, filename)
-            with open(path, 'r', encoding='utf-8') as f: data[key] = json.load(f)
-    print("Data loaded successfully.")
+            key = os.path.splitext(filename)[0]
+            with open(os.path.join(DATA_DIR, filename), 'r', encoding='utf-8') as f:
+                data[key] = json.load(f)
     return data
 
 def build():
-    """The main function to build the entire website."""
-    print("\nStarting website build...")
-    setup_project_directories()
-
-    # Copy static content
-    print("Copying static files...")
-    if os.path.exists(os.path.join(OUTPUT_DIR, 'assets')): shutil.rmtree(os.path.join(OUTPUT_DIR, 'assets'))
-    shutil.copytree(os.path.join(SRC_DIR, 'assets'), os.path.join(OUTPUT_DIR, 'assets'))
-    if os.path.exists(os.path.join(OUTPUT_DIR, 'content')): shutil.rmtree(os.path.join(OUTPUT_DIR, 'content'))
-    shutil.copytree(CONTENT_DIR, os.path.join(OUTPUT_DIR, 'content'))
-    print("Static files copied successfully.")
-
-    # Copy the CNAME file for the custom domain
-    cname_src = os.path.join(SRC_DIR, 'CNAME')
-    if os.path.exists(cname_src):
-        shutil.copy(cname_src, os.path.join(OUTPUT_DIR, 'CNAME'))
-        print("Custom domain CNAME file copied.")
+    print("\n🚀 Starting SUPERCHARGED website build...")
+    
+    if os.path.exists(OUTPUT_DIR):
+        shutil.rmtree(OUTPUT_DIR)
+    
+    minify_and_copy_assets(ASSETS_DIR, os.path.join(OUTPUT_DIR, 'assets'))
+    optimize_images_to_webp(CONTENT_IMAGES_DIR, os.path.join(OUTPUT_DIR, 'content', 'images'))
+    
+    if os.path.exists(os.path.join(SRC_DIR, 'CNAME')):
+        shutil.copy(os.path.join(SRC_DIR, 'CNAME'), OUTPUT_DIR)
+    if os.path.exists(os.path.join(CONTENT_DIR, 'blog')):
+        shutil.copytree(os.path.join(CONTENT_DIR, 'blog'), os.path.join(OUTPUT_DIR, 'content', 'blog'))
 
     site_data = load_site_data()
     env = Environment(loader=FileSystemLoader(TEMPLATES_DIR), autoescape=True)
 
-    # Render Main Pages
-    print("Rendering main pages...")
-    main_templates = [f for f in os.listdir(TEMPLATES_DIR) if f.endswith('.html')]
-    for filename in main_templates:
-        page_data = site_data.copy()
-        page_data['active_page'] = filename.split('.')[0]
-
-        # <<< CHANGE IS HERE >>>
-        # The old 'if filename == "index.html"' block that was here has been REMOVED.
-        # Now, the 'banners' data from 'banners.json' (loaded by load_site_data)
-        # will be passed directly to the template.
-
+    print("-> Rendering main pages...")
+    for filename in [f for f in os.listdir(TEMPLATES_DIR) if f.endswith('.html')]:
         template = env.get_template(filename)
-        output_html = template.render(page_data)
-        with open(os.path.join(OUTPUT_DIR, filename), 'w', encoding='utf-8') as f: f.write(output_html)
-        print(f"- Generated Main Page: {filename}")
+        with open(os.path.join(OUTPUT_DIR, filename), 'w', encoding='utf-8') as f:
+            # --- THIS IS THE CORRECTED LINE ---
+            # The **site_data unpacks the dictionary, making 'homepage', 'banners', etc., available
+            f.write(template.render(**site_data, active_page=os.path.splitext(filename)[0]))
 
-    # Render Portfolio Pages
-    print("Rendering portfolio pages...")
+    print("-> Rendering portfolio pages...")
     category_template = env.get_template('partials/portfolio_category.html')
     for category in site_data.get('portfolio', []):
-        page_data = site_data.copy() # Reset page_data for this specific page
         image_path = os.path.join(PORTFOLIO_IMAGES_DIR, category['folder'])
-        page_data.update({'active_page': 'portfolio', 'category_name': category['label'], 'images': os.listdir(image_path), 'category_folder': category['folder']})
-        output_html = category_template.render(page_data)
+        images = []
+        if os.path.exists(image_path):
+            images = [img for img in os.listdir(image_path) if img.lower().endswith(('.png', '.jpg', '.jpeg'))]
+        
+        # --- THIS IS THE CORRECTED PART ---
+        page_data = {**site_data, 'active_page': 'portfolio', 'category_name': category['label'], 'images': images, 'category_folder': category['folder']}
         output_filename = f"portfolio-{category['folder']}.html"
-        with open(os.path.join(OUTPUT_DIR, output_filename), 'w', encoding='utf-8') as f: f.write(output_html)
-        print(f"- Generated Portfolio Page: {output_filename}")
-
-    # Render Blog Posts
-    print("Rendering blog posts...")
-    post_template = env.get_template('partials/post_detail.html')
+        with open(os.path.join(OUTPUT_DIR, output_filename), 'w', encoding='utf-8') as f:
+            f.write(category_template.render(**page_data))
+    
+    print("-> Rendering blog posts...")
     blog_output_dir = os.path.join(OUTPUT_DIR, 'blog')
-    if not os.path.exists(blog_output_dir): os.makedirs(blog_output_dir)
+    os.makedirs(blog_output_dir, exist_ok=True)
+    post_template = env.get_template('partials/post_detail.html')
     for post in site_data.get('blog', []):
-        page_data = site_data.copy() # Reset page_data for this specific page
         md_path = os.path.join(CONTENT_DIR, 'blog', f"{post['slug']}.md")
         if os.path.exists(md_path):
-            with open(md_path, 'r', encoding='utf-8') as f: md_content = f.read()
-            html_content = markdown2.markdown(md_content)
-            page_data.update({'active_page': 'blog', 'post': post, 'content': html_content})
-            output_html = post_template.render(page_data)
+            with open(md_path, 'r', encoding='utf-8') as f:
+                html_content = markdown2.markdown(f.read())
+            
+            # --- THIS IS THE CORRECTED PART ---
+            page_data = {**site_data, 'active_page': 'blog', 'post': post, 'content': html_content}
             output_filename = f"{post['slug']}.html"
-            with open(os.path.join(blog_output_dir, output_filename), 'w', encoding='utf-8') as f: f.write(output_html)
-            print(f"- Generated Blog Post: {output_filename}")
+            with open(os.path.join(blog_output_dir, output_filename), 'w', encoding='utf-8') as f:
+                f.write(post_template.render(**page_data))
         else:
-            print(f"- WARNING: Markdown file not found for slug '{post['slug']}'")
+            print(f"  - WARNING: Markdown file not found for slug '{post['slug']}'")
 
-    print("Build finished.")
+    print("✅ Build finished. Your website is now faster!")
 
 if __name__ == "__main__":
     build()
