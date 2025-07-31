@@ -1,0 +1,32 @@
+[
+  {
+    "label": "Home",
+    "url": "/index.html",
+    "id": "index"
+  },
+  {
+    "label": "About",
+    "url": "/about.html",
+    "id": "about"
+  },
+  {
+    "label": "Portfolio",
+    "url": "/portfolio.html",
+    "id": "portfolio"
+  },
+  {
+    "label": "Services",
+    "url": "/services.html",
+    "id": "services"
+  },
+  {
+    "label": "Contact Us",
+    "url": "/contact.html",
+    "id": "contact"
+  },
+  {
+    "label": "Blog",
+    "url": "/blog.html",
+    "id": "blog"
+  }
+]

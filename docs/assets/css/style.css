@@ -5,51 +5,54 @@ body {
     padding: 0;
     color: #333; /* Default text color */
 }
-
 /* --- Header & Navigation --- */
 header {
-    background-color: #017090; /* Your specified header background color */
-    color: white; /* Text color for the header */
-    padding: 20px 40px; /* Add some spacing */
-    display: flex; /* Helps align logo and menu */
-    justify-content: space-between; /* Puts space between logo and menu */
-    align-items: center; /* Vertically aligns items in the center */
+    background-color: #017090;
+    color: white;
+    padding: 20px 40px; /* Side padding for smaller screens */
+    display: flex;
+    justify-content: center; /* Centers the header-container */
+}
+
+/* This is the new container that enforces the max-width and alignment */
+.header-container {
+    display: flex;
+    justify-content: space-between; /* Pushes logo and nav apart */
+    align-items: center;
+    width: 100%;
+    max-width: 1024px; /* Matches the max-width of your main content */
 }
 
 header a {
-    color: white; /* All links in header are white */
+    color: white;
     text-decoration: none;
     font-weight: bold;
 }
 
-header .logo-placeholder {
-    font-size: 24px;
-}
-
 header nav ul {
-    list-style: none; /* Remove bullet points */
+    list-style: none;
     margin: 0;
     padding: 0;
-    display: flex; /* Make menu items sit side-by-side */
-}
-
-header nav ul li {
-    margin-left: 20px; /* Space between menu items */
+    display: flex;
+    gap: 25px; /* Modern way to space menu items */
 }
 
 header nav ul li a {
-    color: #FFFFFF; /* Your menu text color */
-    padding: 5px 10px;
-    border-radius: 4px;
-    transition: background-color 0.3s;
+    color: #FFFFFF;
+    padding: 5px 0; /* Removed side padding, gap handles spacing */
+    transition: color 0.3s;
 }
 
-/* Style for the 'active' page link - we'll activate this with Jinja later */
+/* Style for the 'active' page link */
+header nav ul li a.active,
+header nav ul li a:hover {
+    color: #c0d72f; /* Your active/hover page color */
+}
+
 header nav ul li a.active {
-    color: #c0d72f; /* Your active page color */
     font-weight: bold;
+    border-bottom: 2px solid #c0d72f;
 }
-
 /* --- Main Content & Footer --- */
 main {
     padding: 20px 40px; /* Add some space around the main content */

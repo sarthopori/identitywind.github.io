@@ -1,17 +1,18 @@
 import os
 import json
 import subprocess
+import shutil
 from flask import Flask, render_template, request, redirect, url_for, send_from_directory, flash
 from werkzeug.utils import secure_filename
-from datetime import datetime # --- NEW: Imported for blog post default date
+from datetime import datetime
 
 # --- Configuration ---
 WEBSITE_ROOT_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 DATA_PATH = os.path.join(WEBSITE_ROOT_PATH, 'src', 'data')
 CONTENT_DIR = os.path.join(WEBSITE_ROOT_PATH, 'src', 'content')
-UPLOAD_FOLDER = os.path.join(CONTENT_DIR, 'images') # Base images folder
+UPLOAD_FOLDER = os.path.join(CONTENT_DIR, 'images')
 
-# Define specific data file paths
+# --- Data File Paths ---
 FOOTER_FILE = os.path.join(DATA_PATH, 'footer.json')
 TESTIMONIALS_FILE = os.path.join(DATA_PATH, 'testimonials.json')
 TEAM_FILE = os.path.join(DATA_PATH, 'team.json')
@@ -24,774 +25,396 @@ SERVICES_FILE = os.path.join(DATA_PATH, 'services.json')
 CONTACT_FILE = os.path.join(DATA_PATH, 'contact.json')
 PORTFOLIO_FILE = os.path.join(DATA_PATH, 'portfolio.json')
 BLOG_FILE = os.path.join(DATA_PATH, 'blog.json')
-CLIENTS_FILE = os.path.join(DATA_PATH, 'clients.json') # --- NEW: Path for clients data
+CLIENTS_FILE = os.path.join(DATA_PATH, 'clients.json')
+NAVIGATION_FILE = os.path.join(DATA_PATH, 'navigation.json')
 
-# Define specific image upload subfolders
+# --- Image Upload Subfolders ---
 TEAM_UPLOAD_FOLDER = os.path.join(UPLOAD_FOLDER, 'team')
 BANNERS_UPLOAD_FOLDER = os.path.join(UPLOAD_FOLDER, 'banners')
 OFFERS_UPLOAD_FOLDER = os.path.join(UPLOAD_FOLDER, 'offers')
 PROJECTS_UPLOAD_FOLDER = os.path.join(UPLOAD_FOLDER, 'projects')
 BLOG_UPLOAD_FOLDER = os.path.join(UPLOAD_FOLDER, 'blog')
 PORTFOLIO_UPLOAD_FOLDER = os.path.join(UPLOAD_FOLDER, 'portfolio')
-CLIENTS_UPLOAD_FOLDER = os.path.join(UPLOAD_FOLDER, 'clients') # --- NEW: Path for client logos
-
-# Define blog content directory
+CLIENTS_UPLOAD_FOLDER = os.path.join(UPLOAD_FOLDER, 'clients')
 BLOG_CONTENT_DIR = os.path.join(CONTENT_DIR, 'blog')
-
 
 # --- Flask App Initialization ---
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.secret_key = 'your_secret_key_here'
-
+app.secret_key = 'your_one_true_secret_key'
 
 # --- Helper Functions ---
 def get_json_data(filepath):
-    if not os.path.exists(filepath):
-        list_files = [
-            BANNERS_FILE, TESTIMONIALS_FILE, TEAM_FILE, OFFERS_FILE,
-            PROJECTS_FILE, VIDEOS_FILE, BLOG_FILE, PORTFOLIO_FILE, CLIENTS_FILE
-        ]
-        return [] if filepath in list_files else {}
+    list_files = [BANNERS_FILE, TESTIMONIALS_FILE, TEAM_FILE, OFFERS_FILE, PROJECTS_FILE, VIDEOS_FILE, BLOG_FILE, PORTFOLIO_FILE, CLIENTS_FILE, NAVIGATION_FILE]
+    if not os.path.exists(filepath): return [] if filepath in list_files else {}
     try:
         with open(filepath, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    except json.JSONDecodeError: # Handle empty or corrupt files
-        return [] if filepath in list_files else {}
+            content = f.read()
+            if not content: return [] if filepath in list_files else {}
+            return json.loads(content)
+    except json.JSONDecodeError: return [] if filepath in list_files else {}
 
 def save_json_data(filepath, data):
     os.makedirs(os.path.dirname(filepath), exist_ok=True)
-    with open(filepath, 'w', encoding='utf-8') as f:
-        json.dump(data, f, indent=2, ensure_ascii=False)
+    with open(filepath, 'w', encoding='utf-8') as f: json.dump(data, f, indent=2, ensure_ascii=False)
 
 def delete_image_file(image_filename, subfolder=""):
     if not image_filename: return
     try:
-        file_path = os.path.join(UPLOAD_FOLDER, subfolder, image_filename) if subfolder else os.path.join(UPLOAD_FOLDER, image_filename)
-        if os.path.exists(file_path):
-            os.remove(file_path)
-            print(f"Deleted image file: {file_path}")
-        else:
-            print(f"Image file not found for deletion: {file_path}")
-    except OSError as e:
-        print(f"Error deleting image file '{image_filename}': {e}")
-
+        path = os.path.join(UPLOAD_FOLDER, subfolder, image_filename) if subfolder else os.path.join(UPLOAD_FOLDER, image_filename)
+        if os.path.exists(path): os.remove(path)
+    except OSError as e: print(f"Error deleting file '{path}': {e}")
 
 # --- App Routes ---
-@app.route('/content/images/<path:filename>')
-def serve_content_image(filename):
-    return send_from_directory(UPLOAD_FOLDER, filename)
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/content/images/<path:filename>')
+def serve_content_image(filename): return send_from_directory(UPLOAD_FOLDER, filename)
+
+@app.route('/')
+def index(): return redirect(url_for('manage_navigation'))
+
+# --- NEW: Navigation ---
+@app.route('/navigation', methods=['GET'])
+def manage_navigation(): return render_template('manage_navigation.html', navigation=get_json_data(NAVIGATION_FILE), active_page='navigation')
+@app.route('/navigation/add', methods=['POST'])
+def add_nav_item():
+    data = get_json_data(NAVIGATION_FILE); data.append({"label": request.form['label'], "url": request.form['url'], "id": request.form['id']}); save_json_data(NAVIGATION_FILE, data); flash('Item added!', 'success'); return redirect(url_for('manage_navigation'))
+@app.route('/navigation/update_all', methods=['POST'])
+def update_all_nav_items():
+    data = []; labels, urls, ids = request.form.getlist('label'), request.form.getlist('url'), request.form.getlist('id')
+    for i in range(len(labels)): data.append({"label": labels[i], "url": urls[i], "id": ids[i]})
+    save_json_data(NAVIGATION_FILE, data); flash('Navigation updated!', 'success'); return redirect(url_for('manage_navigation'))
+@app.route('/navigation/delete/<int:item_id>', methods=['POST'])
+def delete_nav_item(item_id):
+    data = get_json_data(NAVIGATION_FILE)
+    if 0 <= item_id < len(data): data.pop(item_id); save_json_data(NAVIGATION_FILE, data); flash('Item deleted.', 'success')
+    return redirect(url_for('manage_navigation'))
+@app.route('/navigation/move/<int:item_id>/<direction>', methods=['POST'])
+def move_nav_item(item_id, direction):
+    data = get_json_data(NAVIGATION_FILE)
+    if 0 <= item_id < len(data):
+        if direction == 'up' and item_id > 0: data[item_id], data[item_id - 1] = data[item_id - 1], data[item_id]
+        elif direction == 'down' and item_id < len(data) - 1: data[item_id], data[item_id + 1] = data[item_id + 1], data[item_id]
+        save_json_data(NAVIGATION_FILE, data)
+    return redirect(url_for('manage_navigation'))
+
+# --- ORIGINAL AND UPDATED ROUTES ---
+@app.route('/footer', methods=['GET', 'POST'])
 def edit_footer():
-    # (This route remains unchanged)
     data = get_json_data(FOOTER_FILE)
     if request.method == 'POST':
-        data['email'] = request.form['email']
-        data['copyright_text'] = request.form['copyright_text']
-        social_links = []
-        for i in range(len(request.form.getlist('social_name'))):
-            name = request.form.getlist('social_name')[i]
-            url = request.form.getlist('social_url')[i]
-            if name and url:
-                social_links.append({"name": name, "url": url})
-        data['social_links'] = social_links
-        save_json_data(FOOTER_FILE, data)
-        flash('Footer updated successfully!', 'success')
-        return redirect(url_for('edit_footer'))
+        data['email'] = request.form['email']; data['copyright_text'] = request.form['copyright_text']; data['social_links'] = []
+        names, urls = request.form.getlist('social_name'), request.form.getlist('social_url')
+        for i in range(len(names)):
+            if names[i] and urls[i]: data['social_links'].append({'name': names[i], 'url': urls[i]})
+        save_json_data(FOOTER_FILE, data); flash('Footer updated!', 'success'); return redirect(url_for('edit_footer'))
     return render_template('edit_footer.html', data=data, active_page='footer')
 
-
-# --- MODIFIED: Testimonials Routes (Refactored for consistency) ---
 @app.route('/testimonials')
-def manage_testimonials():
-    testimonials_data = get_json_data(TESTIMONIALS_FILE)
-    return render_template('manage_testimonials.html', testimonials=testimonials_data, active_page='testimonials')
-
+def manage_testimonials(): return render_template('manage_testimonials.html', testimonials=get_json_data(TESTIMONIALS_FILE), active_page='testimonials')
 @app.route('/testimonials/add', methods=['GET', 'POST'])
 def add_testimonial():
     if request.method == 'POST':
-        data = get_json_data(TESTIMONIALS_FILE)
-        image_file = request.files.get('image')
-        filename = ""
-        if image_file and image_file.filename != '':
-            filename = secure_filename(image_file.filename)
-            # Client images are stored in the 'team' folder as per the HTML
-            os.makedirs(TEAM_UPLOAD_FOLDER, exist_ok=True)
-            image_file.save(os.path.join(TEAM_UPLOAD_FOLDER, filename))
-        
-        new_testimonial = {
-            "feedback": request.form['feedback'],
-            "stars": int(request.form['stars']),
-            "image": filename,
-            "client_name": request.form['client_name'],
-            "client_company": request.form['client_company']
-        }
-        data.append(new_testimonial)
-        save_json_data(TESTIMONIALS_FILE, data)
-        flash('Testimonial added successfully!', 'success')
-        return redirect(url_for('manage_testimonials'))
+        data = get_json_data(TESTIMONIALS_FILE); filename = ""
+        if 'image' in request.files and request.files['image'].filename != '':
+            image_file = request.files['image']; filename = secure_filename(image_file.filename); os.makedirs(TEAM_UPLOAD_FOLDER, exist_ok=True); image_file.save(os.path.join(TEAM_UPLOAD_FOLDER, filename))
+        data.append({"feedback": request.form['feedback'], "stars": int(request.form['stars']), "image": filename, "client_name": request.form['client_name'], "client_company": request.form['client_company']})
+        save_json_data(TESTIMONIALS_FILE, data); flash('Testimonial added!', 'success'); return redirect(url_for('manage_testimonials'))
     return render_template('add_edit_testimonial.html', active_page='testimonials', title="Add New Testimonial")
-
 @app.route('/testimonials/edit/<int:item_id>', methods=['GET', 'POST'])
 def edit_testimonial(item_id):
     data = get_json_data(TESTIMONIALS_FILE)
-    if item_id >= len(data) or item_id < 0:
-        flash('Testimonial not found.', 'error')
-        return redirect(url_for('manage_testimonials'))
-    
-    testimonial_to_edit = data[item_id]
-    
+    if not 0 <= item_id < len(data): return redirect(url_for('manage_testimonials'))
+    item = data[item_id]
     if request.method == 'POST':
-        image_file = request.files.get('image')
-        if image_file and image_file.filename != '':
-            if testimonial_to_edit.get('image'):
-                delete_image_file(testimonial_to_edit['image'], subfolder='team') # Stored in 'team' folder
-            filename = secure_filename(image_file.filename)
-            os.makedirs(TEAM_UPLOAD_FOLDER, exist_ok=True)
-            image_file.save(os.path.join(TEAM_UPLOAD_FOLDER, filename))
-            testimonial_to_edit['image'] = filename
-        
-        testimonial_to_edit['feedback'] = request.form['feedback']
-        testimonial_to_edit['stars'] = int(request.form['stars'])
-        testimonial_to_edit['client_name'] = request.form['client_name']
-        testimonial_to_edit['client_company'] = request.form['client_company']
-        
-        save_json_data(TESTIMONIALS_FILE, data)
-        flash('Testimonial updated successfully!', 'success')
-        return redirect(url_for('manage_testimonials'))
-        
-    return render_template('add_edit_testimonial.html', active_page='testimonials', testimonial=testimonial_to_edit, testimonial_id=item_id, title="Edit Testimonial")
-
+        if 'image' in request.files and request.files['image'].filename != '':
+            delete_image_file(item.get('image'), 'team'); image_file = request.files['image']; filename = secure_filename(image_file.filename); os.makedirs(TEAM_UPLOAD_FOLDER, exist_ok=True); image_file.save(os.path.join(TEAM_UPLOAD_FOLDER, filename)); item['image'] = filename
+        item['feedback'] = request.form['feedback']; item['stars'] = int(request.form['stars']); item['client_name'] = request.form['client_name']; item['client_company'] = request.form['client_company']
+        save_json_data(TESTIMONIALS_FILE, data); flash('Testimonial updated!', 'success'); return redirect(url_for('manage_testimonials'))
+    return render_template('add_edit_testimonial.html', testimonial=item, testimonial_id=item_id, active_page='testimonials', title="Edit Testimonial")
 @app.route('/testimonials/delete/<int:item_id>', methods=['POST'])
 def delete_testimonial(item_id):
     data = get_json_data(TESTIMONIALS_FILE)
-    if item_id >= len(data) or item_id < 0:
-        flash('Testimonial not found.', 'error')
-        return redirect(url_for('manage_testimonials'))
-    
-    image_to_delete = data[item_id].get('image')
-    if image_to_delete:
-        delete_image_file(image_to_delete, subfolder='team') # Stored in 'team' folder
-
-    data.pop(item_id)
-    save_json_data(TESTIMONIALS_FILE, data)
-    flash('Testimonial deleted successfully!', 'success')
+    if 0 <= item_id < len(data): delete_image_file(data[item_id].get('image'), 'team'); data.pop(item_id); save_json_data(TESTIMONIALS_FILE, data); flash('Testimonial deleted.', 'success')
     return redirect(url_for('manage_testimonials'))
 
-
-# --- NEW: Client Logo Management Routes ---
 @app.route('/clients')
-def manage_clients():
-    clients_data = get_json_data(CLIENTS_FILE)
-    return render_template('manage_clients.html', clients=clients_data, active_page='clients')
-
+def manage_clients(): return render_template('manage_clients.html', clients=get_json_data(CLIENTS_FILE), active_page='clients')
 @app.route('/clients/add', methods=['GET', 'POST'])
 def add_client():
     if request.method == 'POST':
-        data = get_json_data(CLIENTS_FILE)
-        image_file = request.files.get('logo')
-        filename = ""
-        if image_file and image_file.filename != '':
-            filename = secure_filename(image_file.filename)
-            os.makedirs(CLIENTS_UPLOAD_FOLDER, exist_ok=True)
-            image_file.save(os.path.join(CLIENTS_UPLOAD_FOLDER, filename))
-        
-        new_client = {
-            "logo": filename,
-            "url": request.form['url']
-        }
-        data.append(new_client)
-        save_json_data(CLIENTS_FILE, data)
-        flash('Client logo added successfully!', 'success')
-        return redirect(url_for('manage_clients'))
+        data = get_json_data(CLIENTS_FILE); filename = ""
+        if 'logo' in request.files and request.files['logo'].filename != '':
+            image_file = request.files['logo']; filename = secure_filename(image_file.filename); os.makedirs(CLIENTS_UPLOAD_FOLDER, exist_ok=True); image_file.save(os.path.join(CLIENTS_UPLOAD_FOLDER, filename))
+        data.append({"logo": filename, "url": request.form['url']}); save_json_data(CLIENTS_FILE, data); flash('Client logo added.', 'success'); return redirect(url_for('manage_clients'))
     return render_template('add_edit_client.html', active_page='clients', title="Add New Client Logo")
-
 @app.route('/clients/edit/<int:item_id>', methods=['GET', 'POST'])
 def edit_client(item_id):
     data = get_json_data(CLIENTS_FILE)
-    if item_id >= len(data) or item_id < 0:
-        flash('Client not found.', 'error')
-        return redirect(url_for('manage_clients'))
-    
-    client_to_edit = data[item_id]
-    
+    if not 0 <= item_id < len(data): return redirect(url_for('manage_clients'))
+    item = data[item_id]
     if request.method == 'POST':
-        image_file = request.files.get('logo')
-        if image_file and image_file.filename != '':
-            if client_to_edit.get('logo'):
-                delete_image_file(client_to_edit['logo'], subfolder='clients')
-            filename = secure_filename(image_file.filename)
-            os.makedirs(CLIENTS_UPLOAD_FOLDER, exist_ok=True)
-            image_file.save(os.path.join(CLIENTS_UPLOAD_FOLDER, filename))
-            client_to_edit['logo'] = filename
-        
-        client_to_edit['url'] = request.form['url']
-        save_json_data(CLIENTS_FILE, data)
-        flash('Client logo updated successfully!', 'success')
-        return redirect(url_for('manage_clients'))
-        
-    return render_template('add_edit_client.html', active_page='clients', client=client_to_edit, client_id=item_id, title="Edit Client Logo")
-
+        if 'logo' in request.files and request.files['logo'].filename != '':
+            delete_image_file(item.get('logo'), 'clients'); image_file = request.files['logo']; filename = secure_filename(image_file.filename); os.makedirs(CLIENTS_UPLOAD_FOLDER, exist_ok=True); image_file.save(os.path.join(CLIENTS_UPLOAD_FOLDER, filename)); item['logo'] = filename
+        item['url'] = request.form['url']; save_json_data(CLIENTS_FILE, data); flash('Client logo updated.', 'success'); return redirect(url_for('manage_clients'))
+    return render_template('add_edit_client.html', client=item, client_id=item_id, active_page='clients', title="Edit Client Logo")
 @app.route('/clients/delete/<int:item_id>', methods=['POST'])
 def delete_client(item_id):
     data = get_json_data(CLIENTS_FILE)
-    if item_id >= len(data) or item_id < 0:
-        flash('Client not found.', 'error')
-        return redirect(url_for('manage_clients'))
-    
-    image_to_delete = data[item_id].get('logo')
-    if image_to_delete:
-        delete_image_file(image_to_delete, subfolder='clients')
-
-    data.pop(item_id)
-    save_json_data(CLIENTS_FILE, data)
-    flash('Client logo deleted successfully!', 'success')
+    if 0 <= item_id < len(data): delete_image_file(data[item_id].get('logo'), 'clients'); data.pop(item_id); save_json_data(CLIENTS_FILE, data); flash('Client logo deleted.', 'success')
     return redirect(url_for('manage_clients'))
 
-
-# --- All other routes (Team, Banners, Offers, etc.) remain below and are unchanged. ---
-# (I am omitting them for brevity, but they should remain in your file)
-# Make sure to copy the code above and insert it BEFORE your '/team' routes.
-# The following are your existing, unchanged routes.
-
 @app.route('/team')
-def manage_team():
-    return render_template('manage_team.html', team=get_json_data(TEAM_FILE), active_page='team')
+def manage_team(): return render_template('manage_team.html', team=get_json_data(TEAM_FILE), active_page='team')
 @app.route('/team/add', methods=['POST'])
 def add_team_member():
-    data = get_json_data(TEAM_FILE)
-    image_file = request.files.get('image')
-    filename = ""
-    if image_file and image_file.filename != '':
-        filename = secure_filename(image_file.filename)
-        os.makedirs(TEAM_UPLOAD_FOLDER, exist_ok=True)
-        image_file.save(os.path.join(TEAM_UPLOAD_FOLDER, filename))
-    new_member = {
-        "name": request.form['name'],
-        "title": request.form['title'],
-        "bio": request.form.get('bio', ''),
-        "image": filename,
-        "is_ceo": 'is_ceo' in request.form
-    }
-    data.append(new_member)
-    save_json_data(TEAM_FILE, data)
-    flash('Team member added successfully!', 'success')
-    return redirect(url_for('manage_team'))
+    data = get_json_data(TEAM_FILE); filename = ""
+    if 'image' in request.files and request.files['image'].filename != '':
+        image_file = request.files['image']; filename = secure_filename(image_file.filename); os.makedirs(TEAM_UPLOAD_FOLDER, exist_ok=True); image_file.save(os.path.join(TEAM_UPLOAD_FOLDER, filename))
+    data.append({"name": request.form['name'], "title": request.form['title'], "bio": request.form.get('bio', ''), "image": filename, "is_ceo": 'is_ceo' in request.form})
+    save_json_data(TEAM_FILE, data); flash('Team member added!', 'success'); return redirect(url_for('manage_team'))
 @app.route('/team/edit/<int:item_id>', methods=['GET', 'POST'])
 def edit_team_member(item_id):
     data = get_json_data(TEAM_FILE)
-    if item_id >= len(data) or item_id < 0:
-        flash('Team member not found.', 'error')
-        return redirect(url_for('manage_team'))
-    member_to_edit = data[item_id]
+    if not 0 <= item_id < len(data): return redirect(url_for('manage_team'))
+    member = data[item_id]
     if request.method == 'POST':
-        image_file = request.files.get('image')
-        if image_file and image_file.filename != '':
-            if member_to_edit.get('image'):
-                delete_image_file(member_to_edit['image'], subfolder='team')
-            filename = secure_filename(image_file.filename)
-            os.makedirs(TEAM_UPLOAD_FOLDER, exist_ok=True)
-            image_file.save(os.path.join(TEAM_UPLOAD_FOLDER, filename))
-            member_to_edit['image'] = filename
-        member_to_edit['name'] = request.form['name']
-        member_to_edit['title'] = request.form['title']
-        member_to_edit['bio'] = request.form.get('bio', '')
-        member_to_edit['is_ceo'] = 'is_ceo' in request.form
-        save_json_data(TEAM_FILE, data)
-        flash('Team member updated successfully!', 'success')
-        return redirect(url_for('manage_team'))
-    return render_template('edit_team_member.html', member=member_to_edit, active_page='team')
+        if 'image' in request.files and request.files['image'].filename != '':
+            delete_image_file(member.get('image'), 'team'); image_file = request.files['image']; filename = secure_filename(image_file.filename); os.makedirs(TEAM_UPLOAD_FOLDER, exist_ok=True); image_file.save(os.path.join(TEAM_UPLOAD_FOLDER, filename)); member['image'] = filename
+        member['name'] = request.form['name']; member['title'] = request.form['title']; member['bio'] = request.form.get('bio', ''); member['is_ceo'] = 'is_ceo' in request.form
+        save_json_data(TEAM_FILE, data); flash('Team member updated!', 'success'); return redirect(url_for('manage_team'))
+    return render_template('edit_team_member.html', member=member, item_id=item_id, active_page='team', title="Edit Team Member")
 @app.route('/team/delete/<int:item_id>', methods=['POST'])
 def delete_team_member(item_id):
     data = get_json_data(TEAM_FILE)
-    if item_id >= len(data) or item_id < 0:
-        flash('Team member not found.', 'error')
-        return redirect(url_for('manage_team'))
-    image_to_delete = data[item_id].get('image')
-    if image_to_delete:
-        delete_image_file(image_to_delete, subfolder='team')
-    data.pop(item_id)
-    save_json_data(TEAM_FILE, data)
-    flash('Team member deleted successfully!', 'success')
+    if 0 <= item_id < len(data): delete_image_file(data[item_id].get('image'), 'team'); data.pop(item_id); save_json_data(TEAM_FILE, data); flash('Team member deleted.', 'success')
     return redirect(url_for('manage_team'))
 
 @app.route('/banners')
-def manage_banners():
-    banners_data = get_json_data(BANNERS_FILE)
-    return render_template('manage_banners.html', banners=banners_data, active_page='banners')
+def manage_banners(): return render_template('manage_banners.html', banners=get_json_data(BANNERS_FILE), active_page='banners')
 @app.route('/banners/add', methods=['GET', 'POST'])
 def add_banner():
     if request.method == 'POST':
-        data = get_json_data(BANNERS_FILE)
-        image_file = request.files.get('image')
-        filename = ""
-        if image_file and image_file.filename != '':
-            filename = secure_filename(image_file.filename)
-            os.makedirs(BANNERS_UPLOAD_FOLDER, exist_ok=True)
-            image_file.save(os.path.join(BANNERS_UPLOAD_FOLDER, filename))
-        new_banner = {"image": filename}
-        data.append(new_banner)
-        save_json_data(BANNERS_FILE, data)
-        flash('Banner added successfully!', 'success')
-        return redirect(url_for('manage_banners'))
+        data = get_json_data(BANNERS_FILE); filename = ""
+        if 'image' in request.files and request.files['image'].filename != '':
+            image_file = request.files['image']; filename = secure_filename(image_file.filename); os.makedirs(BANNERS_UPLOAD_FOLDER, exist_ok=True); image_file.save(os.path.join(BANNERS_UPLOAD_FOLDER, filename))
+        data.append({"image": filename}); save_json_data(BANNERS_FILE, data); flash('Banner added!', 'success'); return redirect(url_for('manage_banners'))
     return render_template('add_edit_banner.html', active_page='banners', title="Add New Banner")
 @app.route('/banners/edit/<int:item_id>', methods=['GET', 'POST'])
 def edit_banner(item_id):
     data = get_json_data(BANNERS_FILE)
-    if item_id >= len(data) or item_id < 0:
-        flash('Banner not found.', 'error')
-        return redirect(url_for('manage_banners'))
-    banner_to_edit = data[item_id]
+    if not 0 <= item_id < len(data): return redirect(url_for('manage_banners'))
+    banner = data[item_id]
     if request.method == 'POST':
-        image_file = request.files.get('image')
-        if image_file and image_file.filename != '':
-            if banner_to_edit.get('image'):
-                delete_image_file(banner_to_edit['image'], subfolder='banners')
-            filename = secure_filename(image_file.filename)
-            os.makedirs(BANNERS_UPLOAD_FOLDER, exist_ok=True)
-            image_file.save(os.path.join(BANNERS_UPLOAD_FOLDER, filename))
-            banner_to_edit['image'] = filename
-        save_json_data(BANNERS_FILE, data)
-        flash('Banner updated successfully!', 'success')
-        return redirect(url_for('manage_banners'))
-    return render_template('add_edit_banner.html', active_page='banners', banner=banner_to_edit, banner_id=item_id, title="Edit Banner")
+        if 'image' in request.files and request.files['image'].filename != '':
+            delete_image_file(banner.get('image'), 'banners'); image_file = request.files['image']; filename = secure_filename(image_file.filename); os.makedirs(BANNERS_UPLOAD_FOLDER, exist_ok=True); image_file.save(os.path.join(BANNERS_UPLOAD_FOLDER, filename)); banner['image'] = filename
+        save_json_data(BANNERS_FILE, data); flash('Banner updated!', 'success'); return redirect(url_for('manage_banners'))
+    return render_template('add_edit_banner.html', banner=banner, banner_id=item_id, active_page='banners', title="Edit Banner")
 @app.route('/banners/delete/<int:item_id>', methods=['POST'])
 def delete_banner(item_id):
     data = get_json_data(BANNERS_FILE)
-    if item_id >= len(data) or item_id < 0:
-        flash('Banner not found.', 'error')
-        return redirect(url_for('manage_banners'))
-    image_to_delete = data[item_id].get('image')
-    if image_to_delete:
-        delete_image_file(image_to_delete, subfolder='banners')
-    data.pop(item_id)
-    save_json_data(BANNERS_FILE, data)
-    flash('Banner deleted successfully!', 'success')
+    if 0 <= item_id < len(data): delete_image_file(data[item_id].get('image'), 'banners'); data.pop(item_id); save_json_data(BANNERS_FILE, data); flash('Banner deleted.', 'success')
     return redirect(url_for('manage_banners'))
 
 @app.route('/offers')
-def manage_offers():
-    offers_data = get_json_data(OFFERS_FILE)
-    return render_template('manage_offers.html', offers=offers_data, active_page='offers')
+def manage_offers(): return render_template('manage_offers.html', offers=get_json_data(OFFERS_FILE), active_page='offers')
 @app.route('/offers/add', methods=['GET', 'POST'])
 def add_offer():
     if request.method == 'POST':
-        data = get_json_data(OFFERS_FILE)
-        image_file = request.files.get('image')
-        filename = ""
-        if image_file and image_file.filename != '':
-            filename = secure_filename(image_file.filename)
-            os.makedirs(OFFERS_UPLOAD_FOLDER, exist_ok=True)
-            image_file.save(os.path.join(OFFERS_UPLOAD_FOLDER, filename))
-        new_offer = {
-            "title": request.form['title'],
-            "image": filename,
-            "url": request.form['url']
-        }
-        data.append(new_offer)
-        save_json_data(OFFERS_FILE, data)
-        flash('Offer added successfully!', 'success')
-        return redirect(url_for('manage_offers'))
+        data = get_json_data(OFFERS_FILE); filename = ""
+        if 'image' in request.files and request.files['image'].filename != '':
+            image_file = request.files['image']; filename = secure_filename(image_file.filename); os.makedirs(OFFERS_UPLOAD_FOLDER, exist_ok=True); image_file.save(os.path.join(OFFERS_UPLOAD_FOLDER, filename))
+        data.append({"title": request.form['title'], "image": filename, "url": request.form['url']}); save_json_data(OFFERS_FILE, data); flash('Offer added!', 'success'); return redirect(url_for('manage_offers'))
     return render_template('add_edit_offer.html', active_page='offers', title="Add New Offer")
 @app.route('/offers/edit/<int:item_id>', methods=['GET', 'POST'])
 def edit_offer(item_id):
     data = get_json_data(OFFERS_FILE)
-    if item_id >= len(data) or item_id < 0:
-        flash('Offer not found.', 'error')
-        return redirect(url_for('manage_offers'))
-    offer_to_edit = data[item_id]
+    if not 0 <= item_id < len(data): return redirect(url_for('manage_offers'))
+    offer = data[item_id]
     if request.method == 'POST':
-        image_file = request.files.get('image')
-        if image_file and image_file.filename != '':
-            if offer_to_edit.get('image'):
-                delete_image_file(offer_to_edit['image'], subfolder='offers')
-            filename = secure_filename(image_file.filename)
-            os.makedirs(OFFERS_UPLOAD_FOLDER, exist_ok=True)
-            image_file.save(os.path.join(OFFERS_UPLOAD_FOLDER, filename))
-            offer_to_edit['image'] = filename
-        offer_to_edit['title'] = request.form['title']
-        offer_to_edit['url'] = request.form['url']
-        save_json_data(OFFERS_FILE, data)
-        flash('Offer updated successfully!', 'success')
-        return redirect(url_for('manage_offers'))
-    return render_template('add_edit_offer.html', active_page='offers', offer=offer_to_edit, offer_id=item_id, title="Edit Offer")
+        if 'image' in request.files and request.files['image'].filename != '':
+            delete_image_file(offer.get('image'), 'offers'); image_file = request.files['image']; filename = secure_filename(image_file.filename); os.makedirs(OFFERS_UPLOAD_FOLDER, exist_ok=True); image_file.save(os.path.join(OFFERS_UPLOAD_FOLDER, filename)); offer['image'] = filename
+        offer['title'] = request.form['title']; offer['url'] = request.form['url']
+        save_json_data(OFFERS_FILE, data); flash('Offer updated!', 'success'); return redirect(url_for('manage_offers'))
+    return render_template('add_edit_offer.html', offer=offer, offer_id=item_id, active_page='offers', title="Edit Offer")
 @app.route('/offers/delete/<int:item_id>', methods=['POST'])
 def delete_offer(item_id):
     data = get_json_data(OFFERS_FILE)
-    if item_id >= len(data) or item_id < 0:
-        flash('Offer not found.', 'error')
-        return redirect(url_for('manage_offers'))
-    image_to_delete = data[item_id].get('image')
-    if image_to_delete:
-        delete_image_file(image_to_delete, subfolder='offers')
-    data.pop(item_id)
-    save_json_data(OFFERS_FILE, data)
-    flash('Offer deleted successfully!', 'success')
+    if 0 <= item_id < len(data): delete_image_file(data[item_id].get('image'), 'offers'); data.pop(item_id); save_json_data(OFFERS_FILE, data); flash('Offer deleted.', 'success')
     return redirect(url_for('manage_offers'))
 
 @app.route('/projects')
-def manage_projects():
-    projects_data = get_json_data(PROJECTS_FILE)
-    return render_template('manage_projects.html', projects=projects_data, active_page='projects')
+def manage_projects(): return render_template('manage_projects.html', projects=get_json_data(PROJECTS_FILE), active_page='projects')
 @app.route('/projects/add', methods=['GET', 'POST'])
 def add_project():
     if request.method == 'POST':
-        data = get_json_data(PROJECTS_FILE)
-        image_file = request.files.get('image')
-        filename = ""
-        if image_file and image_file.filename != '':
-            filename = secure_filename(image_file.filename)
-            os.makedirs(PROJECTS_UPLOAD_FOLDER, exist_ok=True)
-            image_file.save(os.path.join(PROJECTS_UPLOAD_FOLDER, filename))
-        new_project = {
-            "title": request.form['title'],
-            "image": filename,
-            "url": request.form['url']
-        }
-        data.append(new_project)
-        save_json_data(PROJECTS_FILE, data)
-        flash('Project added successfully!', 'success')
-        return redirect(url_for('manage_projects'))
+        data = get_json_data(PROJECTS_FILE); filename = ""
+        if 'image' in request.files and request.files['image'].filename != '':
+            image_file = request.files['image']; filename = secure_filename(image_file.filename); os.makedirs(PROJECTS_UPLOAD_FOLDER, exist_ok=True); image_file.save(os.path.join(PROJECTS_UPLOAD_FOLDER, filename))
+        data.append({"title": request.form['title'], "image": filename, "url": request.form['url']}); save_json_data(PROJECTS_FILE, data); flash('Project added!', 'success'); return redirect(url_for('manage_projects'))
     return render_template('add_edit_project.html', active_page='projects', title="Add New Project")
 @app.route('/projects/edit/<int:item_id>', methods=['GET', 'POST'])
 def edit_project(item_id):
     data = get_json_data(PROJECTS_FILE)
-    if item_id >= len(data) or item_id < 0:
-        flash('Project not found.', 'error')
-        return redirect(url_for('manage_projects'))
-    project_to_edit = data[item_id]
+    if not 0 <= item_id < len(data): return redirect(url_for('manage_projects'))
+    project = data[item_id]
     if request.method == 'POST':
-        image_file = request.files.get('image')
-        if image_file and image_file.filename != '':
-            if project_to_edit.get('image'):
-                delete_image_file(project_to_edit['image'], subfolder='projects')
-            filename = secure_filename(image_file.filename)
-            os.makedirs(PROJECTS_UPLOAD_FOLDER, exist_ok=True)
-            image_file.save(os.path.join(PROJECTS_UPLOAD_FOLDER, filename))
-            project_to_edit['image'] = filename
-        project_to_edit['title'] = request.form['title']
-        project_to_edit['url'] = request.form['url']
-        save_json_data(PROJECTS_FILE, data)
-        flash('Project updated successfully!', 'success')
-        return redirect(url_for('manage_projects'))
-    return render_template('add_edit_project.html', active_page='projects', project=project_to_edit, project_id=item_id, title="Edit Project")
+        if 'image' in request.files and request.files['image'].filename != '':
+            delete_image_file(project.get('image'), 'projects'); image_file = request.files['image']; filename = secure_filename(image_file.filename); os.makedirs(PROJECTS_UPLOAD_FOLDER, exist_ok=True); image_file.save(os.path.join(PROJECTS_UPLOAD_FOLDER, filename)); project['image'] = filename
+        project['title'] = request.form['title']; project['url'] = request.form['url']
+        save_json_data(PROJECTS_FILE, data); flash('Project updated!', 'success'); return redirect(url_for('manage_projects'))
+    return render_template('add_edit_project.html', project=project, project_id=item_id, active_page='projects', title="Edit Project")
 @app.route('/projects/delete/<int:item_id>', methods=['POST'])
 def delete_project(item_id):
     data = get_json_data(PROJECTS_FILE)
-    if item_id >= len(data) or item_id < 0:
-        flash('Project not found.', 'error')
-        return redirect(url_for('manage_projects'))
-    image_to_delete = data[item_id].get('image')
-    if image_to_delete:
-        delete_image_file(image_to_delete, subfolder='projects')
-    data.pop(item_id)
-    save_json_data(PROJECTS_FILE, data)
-    flash('Project deleted successfully!', 'success')
+    if 0 <= item_id < len(data): delete_image_file(data[item_id].get('image'), 'projects'); data.pop(item_id); save_json_data(PROJECTS_FILE, data); flash('Project deleted.', 'success')
     return redirect(url_for('manage_projects'))
 
 @app.route('/videos')
-def manage_videos():
-    videos_data = get_json_data(VIDEOS_FILE)
-    return render_template('manage_videos.html', videos=videos_data, active_page='videos')
+def manage_videos(): return render_template('manage_videos.html', videos=get_json_data(VIDEOS_FILE), active_page='videos')
 @app.route('/videos/add', methods=['GET', 'POST'])
 def add_video():
     if request.method == 'POST':
-        data = get_json_data(VIDEOS_FILE)
-        new_video = {
-            "title": request.form['title'],
-            "youtube_id": request.form['youtube_id']
-        }
-        data.append(new_video)
-        save_json_data(VIDEOS_FILE, data)
-        flash('Video added successfully!', 'success')
-        return redirect(url_for('manage_videos'))
+        data = get_json_data(VIDEOS_FILE); data.append({"title": request.form['title'], "youtube_id": request.form['youtube_id']}); save_json_data(VIDEOS_FILE, data); flash('Video added!', 'success'); return redirect(url_for('manage_videos'))
     return render_template('add_edit_video.html', active_page='videos', title="Add New Video")
 @app.route('/videos/edit/<int:item_id>', methods=['GET', 'POST'])
 def edit_video(item_id):
     data = get_json_data(VIDEOS_FILE)
-    if item_id >= len(data) or item_id < 0:
-        flash('Video not found.', 'error')
-        return redirect(url_for('manage_videos'))
-    video_to_edit = data[item_id]
-    if request.method == 'POST':
-        video_to_edit['title'] = request.form['title']
-        video_to_edit['youtube_id'] = request.form['youtube_id']
-        save_json_data(VIDEOS_FILE, data)
-        flash('Video updated successfully!', 'success')
-        return redirect(url_for('manage_videos'))
-    return render_template('add_edit_video.html', active_page='videos', video=video_to_edit, video_id=item_id, title="Edit Video")
+    if not 0 <= item_id < len(data): return redirect(url_for('manage_videos'))
+    video = data[item_id]
+    if request.method == 'POST': video['title'] = request.form['title']; video['youtube_id'] = request.form['youtube_id']; save_json_data(VIDEOS_FILE, data); flash('Video updated!', 'success'); return redirect(url_for('manage_videos'))
+    return render_template('add_edit_video.html', video=video, video_id=item_id, active_page='videos', title="Edit Video")
 @app.route('/videos/delete/<int:item_id>', methods=['POST'])
 def delete_video(item_id):
     data = get_json_data(VIDEOS_FILE)
-    if item_id >= len(data) or item_id < 0:
-        flash('Video not found.', 'error')
-        return redirect(url_for('manage_videos'))
-    data.pop(item_id)
-    save_json_data(VIDEOS_FILE, data)
-    flash('Video deleted successfully!', 'success')
+    if 0 <= item_id < len(data): data.pop(item_id); save_json_data(VIDEOS_FILE, data); flash('Video deleted.', 'success')
     return redirect(url_for('manage_videos'))
 
 @app.route('/about_page', methods=['GET', 'POST'])
 def edit_about_page():
     data = get_json_data(ABOUT_FILE)
     if request.method == 'POST':
-        banner_image_file = request.files.get('banner_image')
-        if banner_image_file and banner_image_file.filename != '':
-            if data.get('banner_image'):
-                delete_image_file(data['banner_image'])
-            banner_filename = secure_filename(banner_image_file.filename)
-            banner_image_file.save(os.path.join(UPLOAD_FOLDER, banner_filename))
-            data['banner_image'] = banner_filename
-        about_us_image_file = request.files.get('about_us_image')
-        if about_us_image_file and about_us_image_file.filename != '':
-            if data.get('about_us_image'):
-                delete_image_file(data['about_us_image'])
-            about_filename = secure_filename(about_us_image_file.filename)
-            about_us_image_file.save(os.path.join(UPLOAD_FOLDER, about_filename))
-            data['about_us_image'] = about_filename
-        data['about_us_heading'] = request.form['about_us_heading']
-        data['about_us_text'] = request.form['about_us_text']
-        data['who_we_are_heading'] = request.form['who_we_are_heading']
-        data['who_we_are_text'] = request.form['who_we_are_text']
-        save_json_data(ABOUT_FILE, data)
-        flash('About page content updated successfully!', 'success')
-        return redirect(url_for('edit_about_page'))
+        if 'banner_image' in request.files and request.files['banner_image'].filename != '':
+            delete_image_file(data.get('banner_image')); image_file = request.files['banner_image']; data['banner_image'] = secure_filename(image_file.filename); image_file.save(os.path.join(UPLOAD_FOLDER, data['banner_image']))
+        if 'about_us_image' in request.files and request.files['about_us_image'].filename != '':
+            delete_image_file(data.get('about_us_image')); image_file = request.files['about_us_image']; data['about_us_image'] = secure_filename(image_file.filename); image_file.save(os.path.join(UPLOAD_FOLDER, data['about_us_image']))
+        data['about_us_heading'] = request.form['about_us_heading']; data['about_us_text'] = request.form['about_us_text']; data['who_we_are_heading'] = request.form['who_we_are_heading']; data['who_we_are_text'] = request.form['who_we_are_text']
+        save_json_data(ABOUT_FILE, data); flash('About page updated!', 'success'); return redirect(url_for('edit_about_page'))
     return render_template('edit_about_page.html', data=data, active_page='about_page')
 
 @app.route('/services_page', methods=['GET', 'POST'])
 def edit_services_page():
     data = get_json_data(SERVICES_FILE)
     if request.method == 'POST':
-        data['heading'] = request.form['heading']
-        services_input = request.form['services_list']
-        data['services_list'] = [s.strip() for s in services_input.split('\n') if s.strip()]
-        save_json_data(SERVICES_FILE, data)
-        flash('Services page content updated successfully!', 'success')
-        return redirect(url_for('edit_services_page'))
-    services_list_str = "\n".join(data.get('services_list', []))
-    return render_template('edit_services_page.html', data=data, services_list_str=services_list_str, active_page='services_page')
+        data['heading'] = request.form['heading']; data['services_list'] = [s.strip() for s in request.form['services_list'].split('\n') if s.strip()]
+        save_json_data(SERVICES_FILE, data); flash('Services page updated!', 'success'); return redirect(url_for('edit_services_page'))
+    services_list_str = "\n".join(data.get('services_list', [])); return render_template('edit_services_page.html', data=data, services_list_str=services_list_str, active_page='services_page')
 
 @app.route('/contact_page', methods=['GET', 'POST'])
 def edit_contact_page():
     data = get_json_data(CONTACT_FILE)
     if request.method == 'POST':
-        data['page_heading'] = request.form['page_heading']
-        data['page_subheading'] = request.form['page_subheading']
-        data['email']['label'] = request.form['email_label']
-        data['email']['address'] = request.form['email_address']
-        data['phone']['label'] = request.form['phone_label']
-        data['phone']['number'] = request.form['phone_number']
-        data['address']['label'] = request.form['address_label']
-        data['address']['line1'] = request.form['address_line1']
-        data['address']['line2'] = request.form['address_line2']
-        data['business_hours']['label'] = request.form['business_hours_label']
-        data['business_hours']['days'] = request.form['business_hours_days']
-        data['business_hours']['hours'] = request.form['business_hours_hours']
-        save_json_data(CONTACT_FILE, data)
-        flash('Contact page content updated successfully!', 'success')
-        return redirect(url_for('edit_contact_page'))
+        data['page_heading'] = request.form['page_heading']; data['page_subheading'] = request.form['page_subheading']
+        data['email']['label'] = request.form['email_label']; data['email']['address'] = request.form['email_address']
+        data['phone']['label'] = request.form['phone_label']; data['phone']['number'] = request.form['phone_number']
+        data['address']['label'] = request.form['address_label']; data['address']['line1'] = request.form['address_line1']; data['address']['line2'] = request.form['address_line2']
+        data['business_hours']['label'] = request.form['business_hours_label']; data['business_hours']['days'] = request.form['business_hours_days']; data['business_hours']['hours'] = request.form['business_hours_hours']
+        save_json_data(CONTACT_FILE, data); flash('Contact page updated!', 'success'); return redirect(url_for('edit_contact_page'))
     return render_template('edit_contact_page.html', data=data, active_page='contact_page')
 
 @app.route('/blog_posts')
 def manage_blog_posts():
-    blog_posts_data = get_json_data(BLOG_FILE)
-    return render_template('manage_blog_posts.html', blog_posts=blog_posts_data, active_page='blog_posts')
+    return render_template('manage_blog_posts.html', blog_posts=get_json_data(BLOG_FILE), active_page='blog_posts')
 @app.route('/blog_posts/add', methods=['GET', 'POST'])
 def add_blog_post():
     if request.method == 'POST':
-        data = get_json_data(BLOG_FILE)
-        title = request.form['title']
-        author = request.form['author']
-        excerpt = request.form['excerpt']
-        raw_markdown = request.form['content']
-        slug = secure_filename(title.lower().replace(' ', '-'))
-        original_slug = slug
-        counter = 1
-        while any(p['slug'] == slug for p in data):
-            slug = f"{original_slug}-{counter}"
-            counter += 1
-        image_file = request.files.get('image')
-        image_filename = ""
+        data = get_json_data(BLOG_FILE); title = request.form['title']; slug = secure_filename(title.lower().replace(' ', '-')); original_slug = slug; counter = 1
+        while any(p['slug'] == slug for p in data): slug = f"{original_slug}-{counter}"; counter += 1
+        image_filename = ""; image_file = request.files.get('image')
         if image_file and image_file.filename != '':
-            image_filename = secure_filename(image_file.filename)
-            os.makedirs(BLOG_UPLOAD_FOLDER, exist_ok=True)
-            image_file.save(os.path.join(BLOG_UPLOAD_FOLDER, image_filename))
-        new_post = {
-            "title": title,
-            "date": request.form.get('date', datetime.now().strftime("%B %d, %Y")),
-            "author": author,
-            "image": image_filename,
-            "excerpt": excerpt,
-            "slug": slug
-        }
-        data.append(new_post)
+            image_filename = secure_filename(image_file.filename); os.makedirs(BLOG_UPLOAD_FOLDER, exist_ok=True); image_file.save(os.path.join(BLOG_UPLOAD_FOLDER, image_filename))
+        data.append({"title": title, "date": request.form.get('date', datetime.now().strftime("%B %d, %Y")), "author": request.form['author'], "image": image_filename, "excerpt": request.form['excerpt'], "slug": slug})
         save_json_data(BLOG_FILE, data)
-        markdown_filepath = os.path.join(BLOG_CONTENT_DIR, f"{slug}.md")
-        os.makedirs(BLOG_CONTENT_DIR, exist_ok=True)
-        with open(markdown_filepath, 'w', encoding='utf-8') as f:
-            f.write(raw_markdown)
-        flash('Blog post added successfully!', 'success')
-        return redirect(url_for('manage_blog_posts'))
+        with open(os.path.join(BLOG_CONTENT_DIR, f"{slug}.md"), 'w', encoding='utf-8') as f: f.write(request.form['content'])
+        flash('Blog post added!', 'success'); return redirect(url_for('manage_blog_posts'))
     return render_template('add_edit_blog_post.html', active_page='blog_posts', title="Add New Blog Post", current_date=datetime.now().strftime("%B %d, %Y"))
 @app.route('/blog_posts/edit/<int:item_id>', methods=['GET', 'POST'])
 def edit_blog_post(item_id):
     data = get_json_data(BLOG_FILE)
-    if item_id >= len(data) or item_id < 0:
-        flash('Blog post not found.', 'error')
-        return redirect(url_for('manage_blog_posts'))
-    post_to_edit = data[item_id]
-    markdown_filepath = os.path.join(BLOG_CONTENT_DIR, f"{post_to_edit['slug']}.md")
-    current_markdown_content = ""
-    if os.path.exists(markdown_filepath):
-        with open(markdown_filepath, 'r', encoding='utf-8') as f:
-            current_markdown_content = f.read()
+    if not 0 <= item_id < len(data): return redirect(url_for('manage_blog_posts'))
+    post = data[item_id]; md_path = os.path.join(BLOG_CONTENT_DIR, f"{post['slug']}.md"); current_md = ""
+    if os.path.exists(md_path):
+        with open(md_path, 'r', encoding='utf-8') as f: current_md = f.read()
     if request.method == 'POST':
-        new_title = request.form['title']
-        new_slug = secure_filename(new_title.lower().replace(' ', '-'))
-        if new_slug != post_to_edit['slug']:
-            old_markdown_filepath = os.path.join(BLOG_CONTENT_DIR, f"{post_to_edit['slug']}.md")
-            original_new_slug = new_slug
-            counter = 1
-            while any(p['slug'] == new_slug for p in data if p != post_to_edit):
-                new_slug = f"{original_new_slug}-{counter}"
-                counter += 1
-            new_markdown_filepath = os.path.join(BLOG_CONTENT_DIR, f"{new_slug}.md")
-            if os.path.exists(old_markdown_filepath):
-                os.rename(old_markdown_filepath, new_markdown_filepath)
-            post_to_edit['slug'] = new_slug
-        image_file = request.files.get('image')
-        if image_file and image_file.filename != '':
-            if post_to_edit.get('image'):
-                delete_image_file(post_to_edit['image'], subfolder='blog')
-            image_filename = secure_filename(image_file.filename)
-            os.makedirs(BLOG_UPLOAD_FOLDER, exist_ok=True)
-            image_file.save(os.path.join(BLOG_UPLOAD_FOLDER, image_filename))
-            post_to_edit['image'] = image_filename
-        post_to_edit['title'] = new_title
-        post_to_edit['author'] = request.form['author']
-        post_to_edit['date'] = request.form['date']
-        post_to_edit['excerpt'] = request.form['excerpt']
+        new_title = request.form['title']; new_slug = secure_filename(new_title.lower().replace(' ', '-'))
+        if new_slug != post['slug']:
+            old_md_path = os.path.join(BLOG_CONTENT_DIR, f"{post['slug']}.md"); original_slug = new_slug; counter = 1
+            while any(p['slug'] == new_slug for p in data if p != post): new_slug = f"{original_slug}-{counter}"; counter += 1
+            if os.path.exists(old_md_path): os.rename(old_md_path, os.path.join(BLOG_CONTENT_DIR, f"{new_slug}.md"))
+            post['slug'] = new_slug
+        if 'image' in request.files and request.files['image'].filename != '':
+            delete_image_file(post.get('image'), 'blog'); image_file = request.files['image']; filename = secure_filename(image_file.filename); os.makedirs(BLOG_UPLOAD_FOLDER, exist_ok=True); image_file.save(os.path.join(BLOG_UPLOAD_FOLDER, filename)); post['image'] = filename
+        post['title'] = new_title; post['author'] = request.form['author']; post['date'] = request.form['date']; post['excerpt'] = request.form['excerpt']
         save_json_data(BLOG_FILE, data)
-        updated_markdown = request.form['content']
-        with open(os.path.join(BLOG_CONTENT_DIR, f"{post_to_edit['slug']}.md"), 'w', encoding='utf-8') as f:
-            f.write(updated_markdown)
-        flash('Blog post updated successfully!', 'success')
-        return redirect(url_for('manage_blog_posts'))
-    return render_template('add_edit_blog_post.html', active_page='blog_posts', post=post_to_edit, post_id=item_id, title="Edit Blog Post", current_markdown_content=current_markdown_content)
+        with open(os.path.join(BLOG_CONTENT_DIR, f"{post['slug']}.md"), 'w', encoding='utf-8') as f: f.write(request.form['content'])
+        flash('Blog post updated!', 'success'); return redirect(url_for('manage_blog_posts'))
+    return render_template('add_edit_blog_post.html', post=post, post_id=item_id, current_markdown_content=current_md, active_page='blog_posts', title="Edit Blog Post")
 @app.route('/blog_posts/delete/<int:item_id>', methods=['POST'])
 def delete_blog_post(item_id):
     data = get_json_data(BLOG_FILE)
-    if item_id >= len(data) or item_id < 0:
-        flash('Blog post not found.', 'error')
-        return redirect(url_for('manage_blog_posts'))
-    post_to_delete = data[item_id]
-    image_to_delete = post_to_delete.get('image')
-    if image_to_delete:
-        delete_image_file(image_to_delete, subfolder='blog')
-    markdown_filepath = os.path.join(BLOG_CONTENT_DIR, f"{post_to_delete['slug']}.md")
-    if os.path.exists(markdown_filepath):
-        try:
-            os.remove(markdown_filepath)
-        except OSError as e:
-            print(f"Error deleting markdown file '{markdown_filepath}': {e}")
-    data.pop(item_id)
-    save_json_data(BLOG_FILE, data)
-    flash('Blog post deleted successfully!', 'success')
+    if 0 <= item_id < len(data):
+        post = data[item_id]; delete_image_file(post.get('image'), 'blog')
+        md_path = os.path.join(BLOG_CONTENT_DIR, f"{post['slug']}.md")
+        if os.path.exists(md_path): os.remove(md_path)
+        data.pop(item_id); save_json_data(BLOG_FILE, data); flash('Blog post deleted.', 'success')
     return redirect(url_for('manage_blog_posts'))
 
 @app.route('/portfolio_categories')
 def manage_portfolio_categories():
-    portfolio_data = get_json_data(PORTFOLIO_FILE)
-    return render_template('manage_portfolio_categories.html', categories=portfolio_data, active_page='portfolio_categories')
+    return render_template('manage_portfolio_categories.html', categories=get_json_data(PORTFOLIO_FILE), active_page='portfolio_categories')
 @app.route('/portfolio_categories/add', methods=['GET', 'POST'])
 def add_portfolio_category():
     if request.method == 'POST':
-        data = get_json_data(PORTFOLIO_FILE)
-        label = request.form['label']
-        folder = secure_filename(request.form['folder_name'].lower().replace(' ', '-'))
-        original_folder = folder
-        counter = 1
-        while any(c['folder'] == folder for c in data):
-            folder = f"{original_folder}-{counter}"
-            counter += 1
-        image_file = request.files.get('image')
-        image_filename = ""
-        if image_file and image_file.filename != '':
-            image_filename = secure_filename(image_file.filename)
-            os.makedirs(PORTFOLIO_UPLOAD_FOLDER, exist_ok=True)
-            image_file.save(os.path.join(PORTFOLIO_UPLOAD_FOLDER, image_filename))
-        new_category = {
-            "label": label,
-            "folder": folder,
-            "image": image_filename
-        }
-        data.append(new_category)
-        save_json_data(PORTFOLIO_FILE, data)
-        category_images_path = os.path.join(PORTFOLIO_UPLOAD_FOLDER, folder)
-        os.makedirs(category_images_path, exist_ok=True)
-        flash('Portfolio category added successfully!', 'success')
-        return redirect(url_for('manage_portfolio_categories'))
+        data = get_json_data(PORTFOLIO_FILE); folder = secure_filename(request.form['folder_name'].lower().replace(' ', '-')); original_folder = folder; counter = 1
+        while any(c['folder'] == folder for c in data): folder = f"{original_folder}-{counter}"; counter += 1
+        filename = ""
+        if 'image' in request.files and request.files['image'].filename != '':
+            image_file = request.files['image']; filename = secure_filename(image_file.filename); os.makedirs(PORTFOLIO_UPLOAD_FOLDER, exist_ok=True); image_file.save(os.path.join(PORTFOLIO_UPLOAD_FOLDER, filename))
+        data.append({"label": request.form['label'], "folder": folder, "image": filename}); save_json_data(PORTFOLIO_FILE, data)
+        os.makedirs(os.path.join(PORTFOLIO_UPLOAD_FOLDER, folder), exist_ok=True)
+        flash('Portfolio category added!', 'success'); return redirect(url_for('manage_portfolio_categories'))
     return render_template('add_edit_portfolio_category.html', active_page='portfolio_categories', title="Add New Portfolio Category")
 @app.route('/portfolio_categories/edit/<int:item_id>', methods=['GET', 'POST'])
 def edit_portfolio_category(item_id):
     data = get_json_data(PORTFOLIO_FILE)
-    if item_id >= len(data) or item_id < 0:
-        flash('Portfolio category not found.', 'error')
-        return redirect(url_for('manage_portfolio_categories'))
-    category_to_edit = data[item_id]
+    if not 0 <= item_id < len(data): return redirect(url_for('manage_portfolio_categories'))
+    category = data[item_id]
     if request.method == 'POST':
-        old_folder = category_to_edit['folder']
-        new_label = request.form['label']
-        new_folder = secure_filename(request.form['folder_name'].lower().replace(' ', '-'))
+        old_folder = category['folder']; new_folder = secure_filename(request.form['folder_name'].lower().replace(' ', '-'))
         if new_folder != old_folder:
-            old_path = os.path.join(PORTFOLIO_UPLOAD_FOLDER, old_folder)
-            original_new_folder = new_folder
-            counter = 1
-            while any(c['folder'] == new_folder for c in data if c != category_to_edit):
-                new_folder = f"{original_new_folder}-{counter}"
-                counter += 1
-            new_path = os.path.join(PORTFOLIO_UPLOAD_FOLDER, new_folder)
-            if os.path.exists(old_path):
-                os.rename(old_path, new_path)
-            else:
-                os.makedirs(new_path, exist_ok=True)
-            category_to_edit['folder'] = new_folder
-        image_file = request.files.get('image')
-        if image_file and image_file.filename != '':
-            if category_to_edit.get('image'):
-                delete_image_file(category_to_edit['image'], subfolder='portfolio')
-            image_filename = secure_filename(image_file.filename)
-            os.makedirs(PORTFOLIO_UPLOAD_FOLDER, exist_ok=True)
-            image_file.save(os.path.join(PORTFOLIO_UPLOAD_FOLDER, image_filename))
-            category_to_edit['image'] = image_filename
-        category_to_edit['label'] = new_label
-        save_json_data(PORTFOLIO_FILE, data)
-        flash('Portfolio category updated successfully!', 'success')
-        return redirect(url_for('manage_portfolio_categories'))
-    return render_template('add_edit_portfolio_category.html', active_page='portfolio_categories', category=category_to_edit, category_id=item_id, title="Edit Portfolio Category")
+            original_folder = new_folder; counter = 1
+            while any(c['folder'] == new_folder for c in data if c != category): new_folder = f"{original_folder}-{counter}"; counter += 1
+            old_path = os.path.join(PORTFOLIO_UPLOAD_FOLDER, old_folder); new_path = os.path.join(PORTFOLIO_UPLOAD_FOLDER, new_folder)
+            if os.path.exists(old_path): os.rename(old_path, new_path)
+            else: os.makedirs(new_path, exist_ok=True)
+            category['folder'] = new_folder
+        if 'image' in request.files and request.files['image'].filename != '':
+            delete_image_file(category.get('image'), 'portfolio'); image_file = request.files['image']; filename = secure_filename(image_file.filename); os.makedirs(PORTFOLIO_UPLOAD_FOLDER, exist_ok=True); image_file.save(os.path.join(PORTFOLIO_UPLOAD_FOLDER, filename)); category['image'] = filename
+        category['label'] = request.form['label']; save_json_data(PORTFOLIO_FILE, data); flash('Category updated!', 'success'); return redirect(url_for('manage_portfolio_categories'))
+    return render_template('add_edit_portfolio_category.html', category=category, category_id=item_id, active_page='portfolio_categories', title="Edit Portfolio Category")
 @app.route('/portfolio_categories/delete/<int:item_id>', methods=['POST'])
 def delete_portfolio_category(item_id):
     data = get_json_data(PORTFOLIO_FILE)
-    if item_id >= len(data) or item_id < 0:
-        flash('Portfolio category not found.', 'error')
-        return redirect(url_for('manage_portfolio_categories'))
-    category_to_delete = data[item_id]
-    image_to_delete = category_to_delete.get('image')
-    if image_to_delete:
-        delete_image_file(image_to_delete, subfolder='portfolio')
-    category_folder_path = os.path.join(PORTFOLIO_UPLOAD_FOLDER, category_to_delete['folder'])
-    if os.path.exists(category_folder_path):
-        try:
-            import shutil
-            shutil.rmtree(category_folder_path)
-        except OSError as e:
-            flash(f"Error deleting folder for '{category_to_delete['label']}': {e}", 'error')
-    data.pop(item_id)
-    save_json_data(PORTFOLIO_FILE, data)
-    flash('Portfolio category deleted successfully!', 'success')
+    if 0 <= item_id < len(data):
+        category = data[item_id]; delete_image_file(category.get('image'), 'portfolio')
+        folder_path = os.path.join(PORTFOLIO_UPLOAD_FOLDER, category['folder'])
+        if os.path.exists(folder_path):
+            try: shutil.rmtree(folder_path)
+            except OSError as e: flash(f"Error deleting folder: {e}", 'error')
+        data.pop(item_id); save_json_data(PORTFOLIO_FILE, data); flash('Category deleted.', 'success')
     return redirect(url_for('manage_portfolio_categories'))
 
+# --- Deploy ---
 @app.route('/deploy', methods=['GET', 'POST'])
 def deploy():
     output = ""
@@ -799,10 +422,8 @@ def deploy():
         commit_message = request.form.get('commit_message', 'Updated website content via CMS')
         try:
             output += ">>> Running build.py...\n"
-            build_process = subprocess.run(['python', os.path.join(WEBSITE_ROOT_PATH, 'build.py')], 
-                                            cwd=WEBSITE_ROOT_PATH, capture_output=True, text=True, check=True, encoding='utf-8')
-            output += build_process.stdout + "\n"
-            output += build_process.stderr + "\n"
+            build_process = subprocess.run(['python', os.path.join(WEBSITE_ROOT_PATH, 'build.py')], cwd=WEBSITE_ROOT_PATH, capture_output=True, text=True, check=True, encoding='utf-8')
+            output += build_process.stdout + "\n" + build_process.stderr + "\n"
             output += ">>> Running git add . ...\n"
             add_process = subprocess.run(['git', 'add', '.'], cwd=WEBSITE_ROOT_PATH, capture_output=True, text=True, check=True, encoding='utf-8')
             output += add_process.stdout + "\n"
@@ -810,32 +431,21 @@ def deploy():
             commit_process = subprocess.run(['git', 'commit', '-m', commit_message], cwd=WEBSITE_ROOT_PATH, capture_output=True, text=True, encoding='utf-8')
             output += commit_process.stdout + "\n"
             if "nothing to commit" in commit_process.stdout.lower() or commit_process.returncode != 0:
-                output += "No changes to commit or commit failed. Skipping git push.\n"
-                flash('Deployment finished. Check log for details.', 'warning' if 'nothing to commit' in commit_process.stdout.lower() else 'error')
+                output += "No changes to commit or commit failed. Skipping push.\n"; flash('Deployment finished. Check log.', 'warning')
                 return render_template('deploy.html', output=output, active_page='deploy')
             output += ">>> Running git push...\n"
             push_process = subprocess.run(['git', 'push'], cwd=WEBSITE_ROOT_PATH, capture_output=True, text=True, check=True, encoding='utf-8')
-            output += push_process.stdout + "\n"
-            output += push_process.stderr + "\n"
-            output += "\n✅ DEPLOYMENT SUCCESSFUL! ✅\n"
-            flash('Website deployed successfully!', 'success')
+            output += push_process.stdout + "\n" + push_process.stderr + "\n"
+            output += "\n✅ DEPLOYMENT SUCCESSFUL! ✅\n"; flash('Website deployed successfully!', 'success')
         except subprocess.CalledProcessError as e:
-            output += f"\n\n❌ DEPLOYMENT FAILED! ❌\n"
-            output += f"Command '{' '.join(e.cmd)}' returned non-zero exit status {e.returncode}.\n"
-            output += "\n--- STDOUT ---\n" + e.stdout
-            output += "\n--- STDERR ---\n" + e.stderr
-            flash('Deployment failed. Check log for details.', 'error')
+            output += f"\n\n❌ DEPLOYMENT FAILED! ❌\nCommand '{' '.join(e.cmd)}' failed.\n--- STDOUT ---\n{e.stdout}\n--- STDERR ---\n{e.stderr}"; flash('Deployment failed.', 'error')
         except Exception as e:
-            output += f"\n\n❌ DEPLOYMENT FAILED! ❌\n"
-            output += f"An unexpected error occurred: {e}\n"
-            flash('Deployment failed. Check log for details.', 'error')
+            output += f"\n\n❌ UNEXPECTED ERROR! ❌\n{e}"; flash('An unexpected error occurred.', 'error')
     return render_template('deploy.html', output=output, active_page='deploy')
 
-
-# --- Run the App ---
+# --- Run App ---
 if __name__ == '__main__':
     print("===================================================")
-    print("Starting your local Content Management Server...")
-    print("Open your web browser and go to: http://127.0.0.1:5000")
+    print("Starting IdentityWind CMS: http://127.0.0.1:5000")
     print("===================================================")
     app.run(port=5000, debug=True)
