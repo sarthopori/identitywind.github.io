@@ -1,10 +1,16 @@
 [
   {
-    "client_name": "Jane Doe, CEO of TechLand",
-    "feedback": "Working with Identity Wind was a game-changer. Their design sense is impeccable and the process was incredibly smooth. They delivered a brand identity that exceeded all our expectations."
+    "feedback": "Working with Identity Wind was a game-changer. Their design sense is impeccable and the process was incredibly smooth. They delivered a brand identity that exceeded all our expectations.",
+    "stars": 5,
+    "image": "client-jane-doe.jpg",
+    "client_name": "Jane Doe",
+    "client_company": "CEO of TechLand"
   },
   {
-    "client_name": "Jane Doe, CEO of TechCor",
-    "feedback": "Working with Identity Wind was a game-changer. Their design sense is impeccable and the process was incredibly smooth. They delivered a brand identity that exceeded all our expectations."
+    "feedback": "Their team is not only talented but also incredibly responsive. They took our initial concept and transformed it into a stunning reality. We couldn't be happier with the results.",
+    "stars": 5,
+    "image": "client-john-smith.jpg",
+    "client_name": "John Smith",
+    "client_company": "Marketing Director, Innovate Co."
   }
 ]

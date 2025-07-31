@@ -76,16 +76,59 @@
         </div>
     </section>
 
-    <!-- Section: Testimonial -->
-    <section class="testimonial-section">
-        <h2 class="section-heading">Testimonial</h2>
-        <div class="testimonial-container">
-            {% for testimonial in testimonials %}
-            <div class="testimonial-card">
-                <p class="testimonial-feedback">"{{ testimonial.feedback }}"</p>
-                <p class="testimonial-client">- {{ testimonial.client_name }}</p>
+  <!-- Section: Testimonial -->
+<section class="testimonial-section">
+    <h2 class="section-heading">What Our Clients Say</h2>
+    {# We re-use the .card-container to get a nice grid layout for testimonials #}
+    <div class="card-container"> 
+        {% for testimonial in testimonials %}
+        <div class="testimonial-card">
+            <div class="testimonial-stars">
+                {# This loop generates the star characters based on the number in your data file #}
+                {% for i in range(testimonial.stars) %}★{% endfor %}
             </div>
-            {% endfor %}
+            <p class="testimonial-feedback">"{{ testimonial.feedback }}"</p>
+            <div class="testimonial-client-info">
+                {# Note: For consistency, client images should be placed in the team images folder #}
+                <img src="/content/images/team/{{ testimonial.image }}" alt="Photo of {{ testimonial.client_name }}">
+                <div class="testimonial-client-details">
+                    <p class="testimonial-client-name">{{ testimonial.client_name }}</p>
+                    <p class="testimonial-client-company">{{ testimonial.client_company }}</p>
+                </div>
+            </div>
         </div>
-    </section>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Section: Our Valued Clients -->
+<section class="client-logo-section">
+    <h2 class="section-heading">Our Valued Clients</h2>
+    {# This checks if you have any clients in your clients.json before rendering #}
+    {% if clients and clients|length > 0 %}
+    <div class="logo-slider-container">
+        <div class="logo-slider">
+            <div class="logo-slider-track">
+                {# This loops through your clients twice to create a seamless "infinite" scroll effect #}
+                {% for client in clients %}
+                <div class="logo-slide">
+                    <a href="{{ client.url }}" target="_blank" rel="noopener noreferrer">
+                        <img src="/content/images/clients/{{ client.logo }}" alt="Client Logo">
+                    </a>
+                </div>
+                {% endfor %}
+                {% for client in clients %}
+                <div class="logo-slide">
+                    <a href="{{ client.url }}" target="_blank" rel="noopener noreferrer">
+                        <img src="/content/images/clients/{{ client.logo }}" alt="Client Logo">
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <button class="logo-slider-prev"><</button>
+        <button class="logo-slider-next">></button>
+    </div>
+    {% endif %}
+</section>
 {% endblock %}

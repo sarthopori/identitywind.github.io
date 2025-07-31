@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="cms-container">
+    <h2>{{ title }}</h2>
+
+    <form method="POST" enctype="multipart/form-data" action="{{ url_for('add_client') if not client else url_for('edit_client', item_id=client_id) }}">
+        <div class="form-group">
+            <label for="logo">Client Logo Image:</label>
+            <input type="file" id="logo" name="logo" accept="image/*" {% if not client %}required{% endif %}>
+            {% if client and client.logo %}
+                <p style="margin-top:10px;">
+                    Current Logo: <br>
+                    <img src="{{ url_for('serve_content_image', filename='clients/' + client.logo) }}" alt="Current Client Logo" style="max-width: 200px; height: auto; margin-top: 5px; display: block; border: 1px solid #ddd; background: #f9f9f9; padding: 5px;">
+                    <small>Filename: {{ client.logo }}</small>
+                </p>
+            {% endif %}
+            <small>Upload a new image to replace the current one. Logos should preferably have a transparent background (PNG).</small>
+        </div>
+
+        <div class="form-group">
+            <label for="url">Company Website URL:</label>
+            <input type="url" id="url" name="url" value="{{ client.url if client else 'https://www.example.com' }}" required>
+            <small>The full website address the logo should link to (e.g., https://www.company.com).</small>
+        </div>
+
+        <button type="submit" class="btn-submit">Save Client Logo</button>
+        <a href="{{ url_for('manage_clients') }}" class="btn-cancel">Cancel</a>
+    </form>
+</div>
+{% endblock %}

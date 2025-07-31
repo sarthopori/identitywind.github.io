@@ -12,7 +12,7 @@
         .sidebar ul li { margin-bottom: 5px; }
         .sidebar ul li a { color: #bdc3c7; text-decoration: none; display: block; padding: 12px 15px; border-radius: 4px; transition: background-color 0.2s, color 0.2s; }
         .sidebar ul li a:hover, .sidebar ul li.active a { background-color: #017090; color: white; font-weight: bold; }
-        
+
         /* Deploy Section */
         .deploy-section { margin-top: auto; padding-top: 20px; border-top: 1px solid #3c5061; }
         .deploy-section ul { margin-top: 0; }
@@ -22,15 +22,16 @@
         .main-content { flex-grow: 1; padding: 2em; }
         .cms-container { max-width: 900px; margin: 0 auto; background-color: white; padding: 2em; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
         .cms-container h2 { color: #34495e; margin-top: 0; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
-        
+
         /* Form Styles */
         form { display: flex; flex-direction: column; gap: 15px; }
         .form-group { margin-bottom: 15px; }
         label { font-weight: bold; color: #34495e; display: block; margin-bottom: 5px; }
-        input[type="text"], input[type="email"], textarea, input[type="file"] { padding: 10px; font-size: 1em; border-radius: 4px; border: 1px solid #ccc; width: calc(100% - 22px); box-sizing: border-box; font-family: inherit; }
+        input[type="text"], input[type="email"], input[type="url"], input[type="number"], textarea, input[type="file"] { padding: 10px; font-size: 1em; border-radius: 4px; border: 1px solid #ccc; width: calc(100% - 22px); box-sizing: border-box; font-family: inherit; }
         textarea { min-height: 100px; resize: vertical; }
         input[type="file"] { border: 1px solid #ccc; padding: 8px; background-color: #f9f9f9; }
-        
+        input[type="number"] { width: 100px; }
+
         /* Checkbox specific styling */
         input[type="checkbox"] {
             width: auto; /* Override width: 100% */
@@ -67,10 +68,10 @@
         .btn-delete { background-color: #e74c3c; color: white; }
         .btn-delete:hover { background-color: #c0392b; }
 
-        /* Data List Display (for manage pages like testimonials, team, banners, offers) */
+        /* Data List Display */
         .data-list-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Responsive grid */
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Responsive grid */
             gap: 20px;
             margin-top: 20px;
         }
@@ -88,14 +89,24 @@
             display: flex;
             align-items: center;
             margin-bottom: 10px;
+            gap: 15px;
         }
         .data-item .item-image {
-            width: 80px; /* Fixed width for preview images */
-            height: 80px; /* Fixed height for preview images */
-            object-fit: cover; /* Ensures image covers the area, cropping if necessary */
+            width: 60px; /* Adjusted size for consistency */
+            height: 60px;
+            object-fit: cover;
+            border-radius: 50%; /* Rounded images */
+            border: 2px solid #ddd;
+            flex-shrink: 0;
+        }
+         .data-item .item-logo-image {
+            width: auto;
+            height: 60px;
+            max-width: 80px;
+            object-fit: contain;
             border-radius: 4px;
-            margin-right: 15px;
-            border: 1px solid #ddd;
+            border: none;
+            flex-shrink: 0;
         }
         .data-item .item-title {
             font-weight: bold;
@@ -118,64 +129,23 @@
         .data-item .item-actions .btn-delete {
             margin-right: 0;
         }
+        .data-item small { font-size: 0.8em; color: #777; }
 
         /* Flash Messages */
-        .flash-message {
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 4px;
-            font-weight: bold;
-            color: white;
-            opacity: 0.9;
-            animation: fadeOut 5s forwards; /* Fade out after 5 seconds */
-        }
-        .flash-message.success {
-            background-color: #28a745; /* Green */
-        }
-        .flash-message.error {
-            background-color: #dc3545; /* Red */
-        }
-        .flash-message.warning {
-            background-color: #ffc107; /* Yellow */
-            color: #333;
-        }
-
-        @keyframes fadeOut {
-            from { opacity: 0.9; }
-            to { opacity: 0; display: none; }
-        }
-
-        /* For footer social links: dynamic input fields */
-        .social-link-group {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
-            align-items: flex-end; /* Align inputs and button at the bottom */
-        }
-        .social-link-group input {
-            flex: 1; /* Distribute space */
-        }
-        .social-link-group button {
-            margin: 0; /* Remove default button margin */
-        }
-        .add-social-button {
-            background-color: #6c757d;
-            color: white;
-            padding: 8px 12px;
-            font-size: 0.8em;
-        }
-        .add-social-button:hover {
-            background-color: #5a6268;
-        }
-        .remove-social-button {
-            background-color: #dc3545;
-            color: white;
-            padding: 8px 12px;
-            font-size: 0.8em;
-        }
-        .remove-social-button:hover {
-            background-color: #c82333;
-        }
+        .flash-message { padding: 15px; margin-bottom: 20px; border-radius: 4px; font-weight: bold; color: white; opacity: 1; transition: opacity 0.5s ease 4.5s; }
+        .flash-message.disappear { opacity: 0; }
+        .flash-message.success { background-color: #28a745; }
+        .flash-message.error { background-color: #dc3545; }
+        .flash-message.warning { background-color: #ffc107; color: #333; }
+        
+        /* Social links dynamic fields */
+        .social-link-group { display: flex; gap: 10px; margin-bottom: 10px; align-items: flex-end; }
+        .social-link-group input { flex: 1; }
+        .social-link-group button { margin: 0; }
+        .add-social-button, .remove-social-button { background-color: #6c757d; color: white; padding: 8px 12px; font-size: 0.8em; }
+        .add-social-button:hover, .remove-social-button:hover { background-color: #5a6268; }
+        .remove-social-button { background-color: #dc3545; }
+        .remove-social-button:hover { background-color: #c82333; }
     </style>
 </head>
 <body>
@@ -183,42 +153,19 @@
         <div>
             <h2>IdentityWind CMS</h2>
             <ul>
-                <li class="{% if active_page == 'footer' %}active{% endif %}">
-                    <a href="{{ url_for('edit_footer') }}">Edit Footer</a>
-                </li>
-                <li class="{% if active_page == 'testimonials' %}active{% endif %}">
-                    <a href="{{ url_for('manage_testimonials') }}">Manage Testimonials</a>
-                </li>
-                <li class="{% if active_page == 'team' %}active{% endif %}">
-                    <a href="{{ url_for('manage_team') }}">Manage Team</a>
-                </li>
-                <li class="{% if active_page == 'banners' %}active{% endif %}">
-                    <a href="{{ url_for('manage_banners') }}">Manage Banners</a>
-                </li>
-                <li class="{% if active_page == 'offers' %}active{% endif %}">
-                    <a href="{{ url_for('manage_offers') }}">Manage Offers</a>
-                </li>
-                <li class="{% if active_page == 'projects' %}active{% endif %}">
-                    <a href="{{ url_for('manage_projects') }}">Manage Projects</a>
-                </li>
-                <li class="{% if active_page == 'videos' %}active{% endif %}">
-                    <a href="{{ url_for('manage_videos') }}">Manage Videos</a>
-                </li>
-                <li class="{% if active_page == 'blog_posts' %}active{% endif %}">
-                    <a href="{{ url_for('manage_blog_posts') }}">Manage Blog Posts</a>
-                </li>
-                <li class="{% if active_page == 'portfolio_categories' %}active{% endif %}">
-                    <a href="{{ url_for('manage_portfolio_categories') }}">Manage Portfolio Categories</a>
-                </li>
-                <li class="{% if active_page == 'about_page' %}active{% endif %}">
-                    <a href="{{ url_for('edit_about_page') }}">Edit About Page</a>
-                </li>
-                <li class="{% if active_page == 'services_page' %}active{% endif %}">
-                    <a href="{{ url_for('edit_services_page') }}">Edit Services Page</a>
-                </li>
-                <li class="{% if active_page == 'contact_page' %}active{% endif %}">
-                    <a href="{{ url_for('edit_contact_page') }}">Edit Contact Page</a>
-                </li>
+                <li class="{% if active_page == 'footer' %}active{% endif %}"><a href="{{ url_for('edit_footer') }}">Edit Footer</a></li>
+                <li class="{% if active_page == 'testimonials' %}active{% endif %}"><a href="{{ url_for('manage_testimonials') }}">Manage Testimonials</a></li>
+                <li class="{% if active_page == 'clients' %}active{% endif %}"><a href="{{ url_for('manage_clients') }}">Manage Clients</a></li> <!--- NEW LINK -->
+                <li class="{% if active_page == 'team' %}active{% endif %}"><a href="{{ url_for('manage_team') }}">Manage Team</a></li>
+                <li class="{% if active_page == 'banners' %}active{% endif %}"><a href="{{ url_for('manage_banners') }}">Manage Banners</a></li>
+                <li class="{% if active_page == 'offers' %}active{% endif %}"><a href="{{ url_for('manage_offers') }}">Manage Offers</a></li>
+                <li class="{% if active_page == 'projects' %}active{% endif %}"><a href="{{ url_for('manage_projects') }}">Manage Projects</a></li>
+                <li class="{% if active_page == 'videos' %}active{% endif %}"><a href="{{ url_for('manage_videos') }}">Manage Videos</a></li>
+                <li class="{% if active_page == 'blog_posts' %}active{% endif %}"><a href="{{ url_for('manage_blog_posts') }}">Manage Blog Posts</a></li>
+                <li class="{% if active_page == 'portfolio_categories' %}active{% endif %}"><a href="{{ url_for('manage_portfolio_categories') }}">Manage Portfolio</a></li>
+                <li class="{% if active_page == 'about_page' %}active{% endif %}"><a href="{{ url_for('edit_about_page') }}">Edit About Page</a></li>
+                <li class="{% if active_page == 'services_page' %}active{% endif %}"><a href="{{ url_for('edit_services_page') }}">Edit Services Page</a></li>
+                <li class="{% if active_page == 'contact_page' %}active{% endif %}"><a href="{{ url_for('edit_contact_page') }}">Edit Contact Page</a></li>
             </ul>
         </div>
         <div class="deploy-section">
@@ -230,7 +177,6 @@
         </div>
     </div>
     <div class="main-content">
-        {# Flash Messages Display #}
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
@@ -243,15 +189,21 @@
     </div>
 
     <script>
-        // JavaScript for dynamic social link fields in footer (if you implemented this)
-        // This is a basic example; for full dynamism, a more robust JS solution might be needed.
         document.addEventListener('DOMContentLoaded', function() {
+            // Flash message auto-hide
+            const flashMessages = document.querySelectorAll('.flash-message');
+            flashMessages.forEach(function(msg) {
+                setTimeout(() => {
+                    msg.classList.add('disappear');
+                }, 5000);
+            });
+
+            // Dynamic social links
             const socialLinksContainer = document.getElementById('social-links-container');
             const addSocialBtn = document.getElementById('add-social-link');
 
             if (addSocialBtn) {
                 addSocialBtn.addEventListener('click', function() {
-                    const newIndex = socialLinksContainer.children.length;
                     const newDiv = document.createElement('div');
                     newDiv.className = 'social-link-group';
                     newDiv.innerHTML = `
@@ -266,7 +218,6 @@
                 });
             }
 
-            // Attach remove listener to existing buttons
             document.querySelectorAll('.remove-social-button').forEach(button => {
                 button.addEventListener('click', function() {
                     button.closest('.social-link-group').remove();
